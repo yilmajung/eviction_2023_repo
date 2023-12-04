@@ -18,3 +18,14 @@ data/tl_2019_48_bg/tl_2019_48_bg.shp
 data/tl_2019_48_bg/tl_2019_48_bg.shp.ea.iso.xml
 data/tl_2019_48_bg/tl_2019_48_bg.shp.iso.xml
 data/tl_2019_48_bg/tl_2019_48_bg.shx
+data/eviction_count_bg_2021.geojson
+data/tl_2021_48_bg/tl_2021_48_bg.cpg
+data/tl_2021_48_bg/tl_2021_48_bg.dbf
+data/tl_2021_48_bg/tl_2021_48_bg.prj
+data/tl_2021_48_bg/tl_2021_48_bg.shp
+data/tl_2021_48_bg/tl_2021_48_bg.shp.ea.iso.xml
+data/tl_2021_48_bg/tl_2021_48_bg.shp.iso.xml
+data/tl_2021_48_bg/tl_2021_48_bg.shx
+data/temp_to_compare_2016.csv
+.gitignore
+data/temp_to_compare_2021.csv

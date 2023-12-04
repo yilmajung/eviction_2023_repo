@@ -121,7 +121,7 @@ df.to_csv('data/acs_data_5y_2021.csv', index=False)
 
 # Query the change in median gross rent between 2016 and 2021
 # Set census API key, year, and variable dictionary
-year_2018 = '2018'
-var_dict_2018 = {'B25064_001E':'median_gross_rent'}
-df_2018 = query_census_api_at_block_group(census_api_key, year_2018, var_dict_2018)
-df_2018.to_csv('data/acs_data_5y_2018.csv', index=False)
+year_2016 = '2016'
+var_dict_2016 = {'B25064_001E':'median_gross_rent'}
+df_2016 = query_census_api_at_block_group(census_api_key, year_2016, var_dict_2016)
+df_2016.to_csv('data/acs_data_5y_2016.csv', index=False)
