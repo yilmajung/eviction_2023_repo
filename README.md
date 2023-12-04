@@ -1,0 +1,1 @@
+This is a repository for my Eviction Study 2023 where I investigated spatial factors associated with the number of eviction filings in Dallas County, TX.
