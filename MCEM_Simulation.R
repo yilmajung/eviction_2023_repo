@@ -383,6 +383,7 @@ beta2 <- -0.3
 sigma2_spatial <- 1
 phi <- 1
 coordinates <- cbind(runif(n_locations, 0, 50), runif(n_locations, 0, 50))
+cov_matrix <- sigma2_spatial * exp(-1 * (as.matrix(dist(coordinates)))/phi)
 
 # Create a function to simulate spatial random effects (multivariate normal distribution)
 spatial_u <- function(sigma2_spatial, phi, coordinates){
@@ -465,4 +466,105 @@ print(paste("Beta2:", beta2))
 print("Spatial Effects:")
 print(u_est)
 mean(u_est)
-u
+
+
+# Projection-based MCEM
+
+# Initialize parameters
+beta1 <- 0.1
+beta2 <- 0.1
+n_pc = 10 # First 10 principal components
+delta_est <- rep(0, n_pc)
+last_mcmc_samples <- rep(0, n_pc)
+tolerance <- 1e-6
+
+# EM Algorithm settings
+max_iter <- 20
+burn_in <- 2000
+n_mcmc <- 4000
+phi <- 1
+sigma2 <- 1
+
+# Function to calculate the reduced dimension spatial random effects
+calculate_M_phi <- function(coordinates, sigma2, phi, X, n_pc) {
+  
+  # Calculate the covariance matrix
+  cov_matrix <- sigma2 * exp(-1 * (as.matrix(dist(coordinates)))/phi) # Exponential decay of correlation with distance
+  
+  # Eigendecomposition of the covariance matrix
+  eigen_cm <- eigen(cov_matrix)
+  eval <- eigen_cm$values
+  evec <- eigen_cm$vector
+  
+  # Use the first n eigenvalues and eigenvectors
+  U_phi <- evec[,1:n_pc]
+  D_phi <- diag(eval[1:n_pc]) # Diagonal matrix
+
+  # Calculate the projection matrix
+  P <- X %*% (solve(t(X) %*% X)) %*% t(X)
+  P_perp <- diag(nrow(P)) - P
+  M_phi <- P_perp %*% U_phi %*% D_phi^(1/2)
+  return(M_phi)
+}
+
+X <- model.matrix(~ X1 + X2 - 1, data = data)  # Fixed effects
+M_phi <- calculate_M_phi(coordinates, sigma2, phi, X, n_pc)
+
+# Function to calculate the proposal distribution
+proposal_function <- function(current_delta) {
+  return(rnorm(1, mean = current_delta, sd = 10)) # sd = 10 for unknown information
+}
+
+# Function to calculate acceptance probability
+acceptance_probability <- function(proposed_delta, current_delta, M_phi, beta1, beta2, y, X1, X2) {
+  # Calculate the likelihood ratio
+  proposed_likelihood <- sum(dpois(y, lambda = exp(beta1 * X1 + beta2 * X2 + M_phi * proposed_delta), log = TRUE))
+  current_likelihood <- sum(dpois(y, lambda = exp(beta1 * X1 + beta2 * X2 + M_phi * current_delta), log = TRUE))
+  return(min(1, exp(proposed_likelihood - current_likelihood)))
+}
+
+for (iter in 1:max_iter) {
+  
+  beta1 <- ifelse(iter==1, beta1, beta1_new)
+  beta2 <- ifelse(iter==1, beta2, beta2_new)
+
+  # E-Step: Metropolis-Hastings for spatial random effects (principal components)
+  for (pc in 1:n_pc) {
+    current_delta <- last_mcmc_samples[pc]
+    spatial_effect_sum <- 0 # Reset sum for averaging
+    
+    for (mcmc_iter in 1:n_mcmc) {
+      proposed_delta <- proposal_function(current_delta)
+      alpha <- acceptance_probability(proposed_delta, current_delta, M_phi[,pc], beta1, beta2, data$y, data$X1, data$X2)
+      if (runif(1) < alpha) {
+        current_delta <- proposed_delta
+      }
+      if (mcmc_iter > burn_in) {
+        spatial_effect_sum <- spatial_effect_sum + current_delta
+      }
+    }
+    
+    # Update spatial effect estimate and store the last MCMC sample
+    delta_est[pc] <- spatial_effect_sum / (n_mcmc - burn_in)
+    last_mcmc_samples[pc] <- current_delta
+  }
+  
+  # M-Step: Update fixed effect (beta)
+  fitted_model <- lm(log(y+1) ~ X1 + X2 + M_phi %*% delta_est - 1, data = data)
+  beta1_new <- coef(fitted_model)['X1']
+  beta2_new <- coef(fitted_model)['X2']
+
+  # Convergence check (for both beta and sigma2_spatial)
+  if (abs(beta1_new - beta1) < tolerance && abs(beta2_new - beta2) < tolerance) {
+    beta1 <- beta1_new
+    beta2 <- beta2_new
+    cat("Converged in", iter, "iterations\n")
+    break
+  }
+}
+
+# Final Parameter Estimates
+print(paste("Beta1:", beta1))
+print(paste("Beta2:", beta2))
+print("Spatial Effects:")
+print(delta_est)
