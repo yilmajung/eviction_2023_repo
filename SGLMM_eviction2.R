@@ -5,7 +5,6 @@ library(sf)
 library(spdep)
 library(readr)
 
-
 # Load the main data
 df <- read_csv("data/acs_evic_data_wo_zero_pop.csv")
 df_np <- read_csv("data/acs_evic_data_np_wo_zero_pop.csv")
@@ -42,10 +41,12 @@ dim(W)
 covariates <- c('poverty_rate', 'hh_median_income', 'median_gross_rent', 'gross_rent_mt40', 
                 'hh_social_programs', 'unemployment_rate', 'black_ratio', 'white_ratio', 'asian_ratio', 'hispanic_ratio', 'edu_lt_highschool',
                 'median_age', 'hh_nonfamily_ratio', 'hh_w_child_ratio', 'renter_occ_rate', 'mortgage_status_ratio',
-                'housing_median_value', '1unit_structure_ratio', 'vacancy_rate', 'hh_average_size_renter_occupied')
+                'housing_median_value', '1unit_structure_ratio', 'vacancy_rate', 'hh_average_size_renter_occupied',
+                'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_30to59', 'time_to_work_mt60')
 df[covariates] <- scale(df[covariates])
 df_np[covariates] <- scale(df_np[covariates])
 dim(df)
+df$case_number
 
 # Address missing values
 ## hh_median_income
