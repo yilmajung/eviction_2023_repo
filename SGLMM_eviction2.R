@@ -47,12 +47,21 @@ df[covariates] <- scale(df[covariates])
 df_np[covariates] <- scale(df_np[covariates])
 dim(df)
 df$case_number
+df_np$case_number
 
 # Address missing values
 ## hh_median_income
 obs_medinc_idx <- which(!is.na(df$hh_median_income))
 miss_medinc_idx <- which(is.na(df$hh_median_income))
 medinc_obs = df$hh_median_income[obs_medinc_idx]
+
+sum(is.na(df$median_gross_rent_change))
+sum(is.na(df$time_to_work_lt30))
+sum(is.na(df$time_to_work_30to59))
+sum(is.na(df$time_to_work_mt60))
+sum(is.na(df$hh_median_income))
+
+
 
 ## median_gross_rent
 obs_medrent_idx <- which(!is.na(df$median_gross_rent))
@@ -68,7 +77,6 @@ medvalue_obs = df$housing_median_value[obs_medvalue_idx]
 obs_renter_hhsize_idx <- which(!is.na(df$hh_average_size_renter_occupied))
 miss_renter_hhsize_idx <- which(is.na(df$hh_average_size_renter_occupied))
 renter_hhsize_obs = df$hh_average_size_renter_occupied[obs_renter_hhsize_idx]
-
 
 # Set up the data list for Stan
 stan_data <- list(N = nrow(df), 
@@ -96,7 +104,8 @@ stan_data <- list(N = nrow(df),
                   X_other = as.matrix(df[,c('poverty_rate', 'gross_rent_mt40', 'hh_social_programs', 'hh_w_child_ratio',
                                             'unemployment_rate', 'black_ratio', 'white_ratio', 'asian_ratio', 'hispanic_ratio', 'edu_lt_highschool', 
                                             'median_age', 'hh_nonfamily_ratio', 'renter_occ_rate', 
-                                            'mortgage_status_ratio', '1unit_structure_ratio', 'vacancy_rate')]),
+                                            'mortgage_status_ratio', '1unit_structure_ratio', 'vacancy_rate',
+                                            'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_30to59', 'time_to_work_mt60')]),
                   W = W,
                   num_neighbors=df$total_population,
                   tau = 1)

@@ -21,7 +21,7 @@ data {
   vector[N_obs_renter_hhsize] renter_hhsize_obs; // Observed values of hh avg size (renter)
   int<lower=0, upper=N> obs_renter_hhsize_idx[N_obs_renter_hhsize]; // Indices of observed values in hh avg size (renter)
   int<lower=0, upper=N> miss_renter_hhsize_idx[N_miss_renter_hhsize]; // Indices of missing values in hh avg size (renter)
-  matrix[N, 16] X_other;  // design matrix for fixed effects (standardized predictors)
+  matrix[N, 20] X_other;  // design matrix for fixed effects (standardized predictors)
   matrix<lower=0, upper=1>[N, N] W;  // adjacency matrix, 0 or 1
   int<lower=0> num_neighbors[N];  // number of neighbors for each area
   real<lower=0> tau;  // precision parameter for spatial effects
@@ -29,7 +29,7 @@ data {
 
 parameters {
   real alpha;  // intercept
-  vector[20] beta;  // coefficients for predictors
+  vector[24] beta;  // coefficients for predictors
   vector[N_miss_medinc] medinc_miss; // missing values of medinc
   vector[N_miss_medrent] medrent_miss; // missing values of median gross rent
   vector[N_miss_medvalue] medvalue_miss; // missing values of housing median value
@@ -92,8 +92,8 @@ model {
   renter_hhsize[obs_renter_hhsize_idx] = renter_hhsize_obs;
   renter_hhsize[miss_renter_hhsize_idx] = renter_hhsize_miss;
 
-    // Likelihood
+  // Likelihood
   for (i in 1:N) {
-    Y[i] ~ poisson_log(alpha + beta[1]*medinc[i] + beta[2]*medrent[i] + beta[3]*medvalue[i] + beta[4]*renter_hhsize[i] + dot_product(X_other[i], beta[5:20]) + phi[i]);
+    Y[i] ~ poisson_log(alpha + beta[1]*medinc[i] + beta[2]*medrent[i] + beta[3]*medvalue[i] + beta[4]*renter_hhsize[i] + dot_product(X_other[i], beta[5:24]) + phi[i]);
   }
 }
