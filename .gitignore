@@ -31,3 +31,7 @@ data/temp_to_compare_2016.csv
 data/temp_to_compare_2021.csv
 random_projection_practice.R
 final_project_wzj5097.R
+temp.R
+data/df_amenity_2021_lab_01bbox_2.csv
+data/df_amenity_2021_lab_01bbox.csv
+create_bbox_temp.ipynb
