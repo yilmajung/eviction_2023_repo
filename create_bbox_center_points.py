@@ -110,10 +110,16 @@ df_bbox['center_lat'] = df_bbox['center_latlon'].str[0]
 df_bbox['center_lon'] = df_bbox['center_latlon'].str[1]
 
 # Extract GEOID for census block (remove the last three digits of GEOID for census block group)
-df_bbox['cbg'] = df_bbox[['center_lat','center_lon']].apply(lambda df_bbox: cg.coordinates(df_bbox['center_lon'], df_bbox['center_lat'])['2020 Census Blocks'][0]['GEOID'],axis=1)[:-3]
+df_bbox['GEOID'] = np.nan
 
-# drop tuple object columns
-df_bbox = df_bbox.drop(['swne_edges','center_latlon','coords'], axis=1)
+for idx, chunk in tqdm(enumerate(np.array_split(df_bbox.iloc, 100))):
+    for i in chunk.index:
+        geoid = cg.coordinates(chunk['center_lon'][i], chunk['center_lat'][i])['2020 Census Blocks'][0]['GEOID'][:-3]
+        df_bbox['GEOID'][i] = geoid
+    df_bbox.to_csv(f'df_bbox_{idx}.csv')
 
-# Save df_bbox as a geojson file
-df_bbox.to_file('data/df_bbox_2020.geojson', driver="GeoJSON")
+# # drop tuple object columns
+# df_bbox = df_bbox.drop(['swne_edges','center_latlon','coords'], axis=1)
+
+# # Save df_bbox as a geojson file
+# df_bbox.to_file('data/df_bbox_2020.geojson', driver="GeoJSON")

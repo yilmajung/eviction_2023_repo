@@ -35,3 +35,6 @@ temp.R
 data/df_amenity_2021_lab_01bbox_2.csv
 data/df_amenity_2021_lab_01bbox.csv
 create_bbox_temp.ipynb
+df_bbox_0.csv
+df_bbox_1.csv
+df_bbox_2.csv
