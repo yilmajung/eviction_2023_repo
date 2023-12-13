@@ -112,7 +112,7 @@ df_bbox['center_lon'] = df_bbox['center_latlon'].str[1]
 # Extract GEOID for census block (remove the last three digits of GEOID for census block group)
 df_bbox['GEOID'] = np.nan
 
-for idx, chunk in tqdm(enumerate(np.array_split(df_bbox.iloc, 100))):
+for idx, chunk in tqdm(enumerate(np.array_split(df_bbox, 100))):
     for i in chunk.index:
         geoid = cg.coordinates(chunk['center_lon'][i], chunk['center_lat'][i])['2020 Census Blocks'][0]['GEOID'][:-3]
         df_bbox['GEOID'][i] = geoid
