@@ -121,6 +121,12 @@ summary(fit)
 posterior_estimates <- rstan::extract(fit)
 
 # Extract the fixed effects coefficients
+c('poverty_rate', 'gross_rent_mt40', 'hh_social_programs', 'hh_w_child_ratio',
+'unemployment_rate', 'black_ratio', 'white_ratio', 'asian_ratio', 'hispanic_ratio', 'edu_lt_highschool', 
+'median_age', 'hh_nonfamily_ratio', 'renter_occ_rate', 
+'mortgage_status_ratio', '1unit_structure_ratio', 'vacancy_rate',
+'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_30to59', 'time_to_work_mt60')
+
 intercept_samples <- posterior_estimates$alpha
 medinc_samples <- posterior_estimates$beta[,1]
 medrent_samples <- posterior_estimates$beta[,2]
@@ -129,44 +135,54 @@ renter_hhsize_samples <- posterior_estimates$beta[,4]
 poverty_samples <- posterior_estimates$beta[,5]
 rent_mt40_samples <- posterior_estimates$beta[,6]
 social_program_samples <- posterior_estimates$beta[,7]
-unemp_samples <- posterior_estimates$beta[,8]
-black_ratio_samples <- posterior_estimates$beta[,9]
-white_ratio_samples <- posterior_estimates$beta[,10]
-edu_lt_hs_samples <- posterior_estimates$beta[,11]
-medage_samples <- posterior_estimates$beta[,12]
-nonfam_samples <- posterior_estimates$beta[,13]
-renter_occ_rate_samples <- posterior_estimates$beta[,14]
-mort_ratio_samples <- posterior_estimates$beta[,15]
-unit1_structure_samples <- posterior_estimates$beta[,16]
-vacancy_rate_samples <- posterior_estimates$beta[,17]
+hh_w_child_samples <- posterior_estimates$beta[,8]
+unemp_samples <- posterior_estimates$beta[,9]
+black_ratio_samples <- posterior_estimates$beta[,10]
+white_ratio_samples <- posterior_estimates$beta[,11]
+asian_ratio_samples <- posterior_estimates$beta[,12]
+hispanic_ratio_samples <- posterior_estimates$beta[,13]
+edu_lt_hs_samples <- posterior_estimates$beta[,14]
+medage_samples <- posterior_estimates$beta[,15]
+nonfam_samples <- posterior_estimates$beta[,16]
+renter_occ_rate_samples <- posterior_estimates$beta[,17]
+mort_ratio_samples <- posterior_estimates$beta[,18]
+unit1_structure_samples <- posterior_estimates$beta[,19]
+vacancy_rate_samples <- posterior_estimates$beta[,20]
+medrent_change_samples <- posterior_estimates$beta[,21]
+time_to_work_lt30_samples <- posterior_estimates$beta[,22]
+time_to_work_30to59_samples <- posterior_estimates$beta[,23]
+time_to_work_mt60_samples <- posterior_estimates$beta[,24]
 
 dim(intercept_samples)
 
 # Create a data frame for 4000 samples
 df_samples <- data_frame(intercept_samples, medinc_samples, medrent_samples, medvalue_samples, 
-                         renter_hhsize_samples, poverty_samples, rent_mt40_samples, social_program_samples, 
-                         unemp_samples, black_ratio_samples, white_ratio_samples, edu_lt_hs_samples, 
+                         renter_hhsize_samples, poverty_samples, rent_mt40_samples, social_program_samples,
+                         hh_w_child_samples, unemp_samples, black_ratio_samples, white_ratio_samples,
+                         asian_ratio_samples, hispanic_ratio_samples, edu_lt_hs_samples, 
                          medage_samples, nonfam_samples, renter_occ_rate_samples, mort_ratio_samples, 
-                         unit1_structure_samples, vacancy_rate_samples)
+                         unit1_structure_samples, vacancy_rate_samples, medrent_change_samples,
+                         time_to_work_lt30_samples, time_to_work_30to59_samples, time_to_work_mt60_samples)
 
 df_95ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.025, 0.975))))
 df_mean <- data_frame(sapply(df_samples, function(x) mean(x)))
 dim(df_95ci)
 dim(df_mean)
 df_95ci <- cbind(df_95ci, df_mean)
-write.csv(df_95ci, 'df_95ci.csv')
+View(df_95ci)
+write.csv(df_95ci, 'data/df_95ci_nonpayment.csv')
 
 # Extract the spatial random effects
 spatial_effects <- posterior_estimates$phi
+dim(spatial_effects)
 avg_spatial_effects <- apply(spatial_effects, 2, mean)
 df$spatial_effect <- avg_spatial_effects
 df_geom$spatial_effect <- avg_spatial_effects
+write.csv(df_geom, 'data/df_geom_nonpayment.csv')
 
-ggplot(df_geom) +
-  geom_sf(aes(fill=spatial_effect), color=NA) +
-  scale_fill_viridis_c() +
-  labs(title="Spatial Random Effects", fill="Effect") +
-  theme_minimal()
+plot1 <- ggplot(df_geom) + geom_sf(aes(fill=spatial_effect), color=NA) + 
+scale_fill_viridis_c() + labs(title="Spatial Random Effects", fill="Effect") + theme_minimal()
+View(plot1)
 
 ggplot(df_geom) +
   geom_sf(aes(fill=spatial_effect), color=NA) +
