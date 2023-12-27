@@ -40,3 +40,5 @@ df_bbox_1.csv
 df_bbox_2.csv
 data/df_95ci_nonpayment.csv
 data/df_geom_nonpayment.csv
+data/df_bbox_01mile_geoid.csv
+data/df_bbox_01mile_geoid.geojson
