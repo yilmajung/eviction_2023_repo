@@ -133,6 +133,6 @@ model {
 
     // Likelihood
     for (i in 1:N) {
-        Y[i] ~ poisson_log(alpha + beta[1]*medinc[i] + beta[2]*medrent[i] + beta[3]*medvalue[i] + beta[4]*renter_hhsize[i] + dot_product(X_other[i], beta[5:24]) + W_transformed[i]);
+        Y[i] ~ poisson_log(alpha + beta[1]*full_medinc[i] + beta[2]*full_medrent[i] + beta[3]*full_medvalue[i] + beta[4]*full_renter_hhsize[i] + dot_product(X_other[i], beta[5:24]) + W_transformed[i]);
     }
 }
