@@ -23,7 +23,7 @@ data {
     int<lower=0, upper=N> obs_renter_hhsize_idx[N_obs_renter_hhsize]; // Indices of observed values in hh avg size (renter)
     int<lower=0, upper=N> miss_renter_hhsize_idx[N_miss_renter_hhsize]; // Indices of missing values in hh avg size (renter)
     matrix[N, K-4] X_other;  // design matrix for fixed effects (standardized predictors)
-    int<lower=0, upper=1> A_sparse[N, 2]; // sparse representation of adjacency matrix
+    int<lower=1> A_sparse[4975, 2]; // sparse representation of adjacency matrix
     int<lower=0> num_neighbors[N];  // number of neighbors for each area
     real<lower=0> tau;  // precision parameter for spatial effects
 }
@@ -47,7 +47,6 @@ transformed parameters {
     vector[N] full_medrent; // full vector for medrent including imputed values
     vector[N] full_medvalue; // full vector for medvalue including imputed values
     vector[N] full_renter_hhsize; // full vector for renter_hhsize including imputed values
-    matrix[N, 24] full_X; // Full design matrix including imputed values
 
     // Populate observed and missing values in one loop each
     full_medinc[obs_medinc_idx] = medinc_obs;
@@ -60,7 +59,11 @@ transformed parameters {
     full_renter_hhsize[miss_renter_hhsize_idx] = renter_hhsize_miss;
 
     // Combine into full design matrix
-    matrix[N, K] full_X = append_col(X_other, [full_medinc, full_medrent, full_medvalue, full_renter_hhsize]);
+    matrix[N, K] full_X;
+    full_X = append_col(X_other, full_medinc);
+    full_X = append_col(full_X, full_medrent);
+    full_X = append_col(full_X, full_medvalue);
+    full_X = append_col(full_X, full_renter_hhsize);
 
     // Compute the orthogonal projection matrix
     matrix[N, N] I = identity_matrix(N);
@@ -81,7 +84,7 @@ model {
     W ~ normal(0, tau); // Precision parameter for spatial random effects
     
     // ICAR prior for spatial random effects using sparse adjacency matrix
-    for (n in 1:size(A_sparse)[1]) {
+    for (n in 1:4975) {
         int i = A_sparse[n, 1];
         int j = A_sparse[n, 2];
         if (num_neighbors[i] > 0) {
@@ -95,7 +98,6 @@ model {
             target += -0.5 * num_neighbors[i] * square(W[i]);
         }
     }
-    
   
     // Model for observed values
     medinc_obs ~ normal(0, sigma_medinc);
@@ -111,6 +113,6 @@ model {
 
     // Likelihood
     for (i in 1:N) {
-        Y[i] ~ poisson_log(alpha + full_X[i]*beta + W_transformed[i]);
+        Y[i] ~ poisson_log(alpha + beta[1]*full_medinc[i] + beta[2]*full_medrent[i] + beta[3]*full_medvalue[i] + beta[4]*full_renter_hhsize[i] + dot_product(X_other[i], beta[5:24]) + W_transformed[i]);
     }
 }
