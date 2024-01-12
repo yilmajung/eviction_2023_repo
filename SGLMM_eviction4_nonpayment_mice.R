@@ -124,7 +124,10 @@ getwd()
 # Extract the results
 posterior_estimates <- rstan::extract(fit)
 
-stan_trace(fit)
+stan_trace(fit, pars=c("beta_orig"))
+stan_trace(posterior_estimates$beta_orig[1:10, 1:10])
+dim(posterior_estimates$beta_orig)
+summary(posterior_estimates$beta_orig)
 # Extract the fixed effects coefficients
 c('poverty_rate', 'gross_rent_mt40', 'hh_social_programs', 'hh_w_child_ratio', 
   'unemployment_rate', 'black_ratio', 'white_ratio', 'asian_ratio', 
