@@ -222,139 +222,34 @@ df_95ci <- cbind(df_95ci, df_95ci_orig)
 View(df_95ci)
 ################################
 
+# Save the results
+write_csv(df_95ci, "data/sglmm_results_other.csv")
 
 
-#####################
-# Without Orthogonality
+# Extract the spatial random effects
+dim(spatial_effects_samples)
+avg_spatial_effects <- apply(spatial_effects_samples, 2, mean)
+df_np_geom$spatial_effect <- avg_spatial_effects
+write.csv(df_np_geom, 'data/df_geom_final_other.csv')
 
-# Load the main data
-df <- read_csv("data/acs_evic_data_wo_zero_pop.csv")
-#df_np <- read_csv("data/acs_evic_data_np_wo_zero_pop.csv")
-head(df)
-df <- df[1:300,]
-df_geom <- df
-#df_np_geom <- df_np
-
-# Convert df_geom to SF object using geometry information
-df_geom <- st_as_sf(df_geom, wkt = "geometry_x")
-#df_np_geom <- st_as_sf(df_np_geom, wkt = "geometry_x")
-
-# Read the CBG shapefile
-# cbg <- st_read("/Users/wooyongjung/WJ_Projects/eviction_geospatial/data/tl_2022_48_bg/tl_2022_48_bg.shp")
-
-# Create a neighbors list from the census tract BG polygons
-neighbors_list <- poly2nb(df_geom$geometry_x)
-
-# Create the binary adjacency matrix, with "B" for binary
-A <- nb2mat(neighbors_list, style='B', zero.policy=TRUE)
-dim(A)
-
-# Create a sparse matrix for A
-neighbors <- which(A==1, arr.ind=TRUE)
-A_sparse <- matrix(neighbors, ncol=2)
-A_sparse <- A_sparse[A_sparse[,1] < A_sparse[,2], ]
-dim(A_sparse)
-head(df)
-
-# Standardize predictors
-covariates <- c('gross_rent_mt40', 'hh_w_child_ratio', 
-                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
-                'edu_lt_highschool', 'renter_occ_rate', '1unit_structure_ratio')
+plot1 <- ggplot(df_np_geom) + geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + 
+  scale_fill_viridis_c() + labs(title="Spatial Random Effects", fill="Effect") + theme_bw()
 
 
-df2 <- df[covariates]
-colnames(df2) <- c('gross_rent_mt40', 'hh_w_child_ratio', 
-                   'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
-                   'edu_lt_highschool', 'renter_occ_rate', 'oneunit_structure_ratio')
-head(df2)
-summary(df2)
+ggplot(df_geom) +
+  geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) +
+  scale_fill_viridis_c() +
+  labs(title="Spatial Random Effects", fill="Effect") +
+  theme_minimal()
 
-# # Check missing values pattern
-# md.pattern(df2)
+ggplot(df_geom) +
+  geom_sf(aes(fill=spatial_effect), color=NA) +
+  scale_fill_gradient2(midpoint=0, low='blue', mid='yellow', high='red', space='Lab') +
+  labs(title="Spatial Random Effects", fill="Effect") +
+  theme_minimal()
 
-# # Impute missing values using MICE
-# imputed <- mice(df2, m=5, maxit=50, method='pmm', seed=123)
-# df3 <- complete(imputed, 2)
-# summary(df3)
-
-# Standardize predictors
-
-covariates <- c('gross_rent_mt40', 'hh_w_child_ratio', 
-                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
-                'edu_lt_highschool', 'renter_occ_rate', 'oneunit_structure_ratio')
-df2[covariates] <- scale(df2[covariates])
-
-df2 <- cbind(df$case_number, df$eviction_rate, df2)
-colnames(df2)[1:2] <- c("case_number", "eviction_rate")
-dim(df2)
-#tempdir()
-#dir.create(tempdir())
-
-# Calculate P_perp
-# Create a design matrix
-X <- as.matrix(df2[,c('gross_rent_mt40', 'hh_w_child_ratio', 
-                      'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
-                      'edu_lt_highschool', 'renter_occ_rate', 'oneunit_structure_ratio')])
-dim(X)
-
-# Create an identity matrix
-I <- diag(nrow(X))
-
-# Compute (X'X)^-1
-XX_inv <- solve(t(X) %*% X, tol = 3e-18)
-
-# Compute P_perp
-P_perp <- I - X %*% XX_inv %*% t(X)
-XX_inv_tx <- XX_inv %*% t(X)
-dim(P_perp)
-dim(XX_inv_tx)
-P_perp[1:10, 1:10]
-# Set up the data list for Stan (Y = eviction_rate)
-stan_data <- list(N = nrow(df2), 
-                  K = 8,
-                  Y = df2$eviction_rate,
-                  X = X,
-                  A = A,
-                  num_neighbors=colSums(A),
-                  tau = 1)
-
-# Fit the model
-fit <- stan(file = 'sglmm_wo_orthog_small.stan', data = stan_data, 
-            iter=30000, chains=4, cores=2, warmup=10000, thin=10,
-            control = list(adapt_delta = 0.99, stepsize = 0.01, max_treedepth = 20))
-
-summary(fit)
-getwd()
-# Extract the results
-posterior_estimates <- rstan::extract(fit)
-dim(posterior_estimates$beta)
-stan_trace(fit, pars=c("alpha"))
-stan_trace(fit, pars=c("beta"))
-stan_trace(fit, pars=c("W"))
-?stan
-summary(df2)
-posterior_estimates$beta
-
-intercept_samples <- posterior_estimates$alpha
-rent_mt40_samples <- posterior_estimates$beta[,1]
-hh_w_child_samples <- posterior_estimates$beta[,2]
-unemp_samples <- posterior_estimates$beta[,3]
-black_ratio_samples <- posterior_estimates$beta[,4]
-hispanic_ratio_samples <- posterior_estimates$beta[,5]
-edu_lt_hs_samples <- posterior_estimates$beta[,6]
-renter_occ_rate_samples <- posterior_estimates$beta[,7]
-unit1_structure_samples <- posterior_estimates$beta[,8]
-spatial_effects_samples <- posterior_estimates$W
-
-df_samples <- data_frame(intercept_samples, rent_mt40_samples,
-                         hh_w_child_samples, unemp_samples, black_ratio_samples,
-                         hispanic_ratio_samples, edu_lt_hs_samples, 
-                         renter_occ_rate_samples, 
-                         unit1_structure_samples, spatial_effects_samples)
-
-df_95ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.025, 0.975))))
-df_mean <- data_frame(sapply(df_samples, function(x) mean(x)))
-dim(df_95ci)
-dim(df_mean)
-df_95ci <- cbind(df_95ci, df_mean)
-View(df_95ci)
+ggplot(df_geom) +
+  geom_sf(aes(fill=case_number), color=NA) +
+  scale_fill_viridis_c(option="plasma") +
+  labs(title="Number of Eviction Filings", fill="# of Eviction") +
+  theme_minimal()
