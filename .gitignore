@@ -43,3 +43,13 @@ data/df_geom_nonpayment.csv
 data/df_bbox_01mile_geoid.csv
 data/df_bbox_01mile_geoid.geojson
 data/sglmm_results_other.csv
+data/df_geom_final_other.csv
+data/results/df_95ci_final_nonpayment.csv
+.gitignore
+.gitignore
+data/results/df_samples_orig_final.csv
+data/results/sglmm_results_other.csv
+data/results/df_geom_final_other.csv
+data/results/df_geom_final_nonpayment.csv
+data/df_geom_final_other.csv
+data/results/df_95ci_final_other.csv

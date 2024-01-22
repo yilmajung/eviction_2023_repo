@@ -70,7 +70,7 @@ var_dict = {
     'B08303_013E':'time_to_work_mt90',
     'B28002_013E':'no_internet_access',
     
-    # Housing variables
+    # Housing variables"medrent_samples"
     'B25001_001E':'housing_unit',
     'B25002_003E':'housing_vacant',
     'B25003_002E':'tenure_owner_occupied',

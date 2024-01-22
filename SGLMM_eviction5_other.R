@@ -233,7 +233,7 @@ df_np_geom$spatial_effect <- avg_spatial_effects
 write.csv(df_np_geom, 'data/df_geom_final_other.csv')
 
 plot1 <- ggplot(df_np_geom) + geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + 
-  scale_fill_viridis_c() + labs(title="Spatial Random Effects", fill="Effect") + theme_bw()
+  scale_fill_viridis_c() + labs(title="Spatial Random Effects", fill="Effect") + theme_bw() + coord_quickmap()
 
 
 ggplot(df_geom) +
@@ -253,3 +253,17 @@ ggplot(df_geom) +
   scale_fill_viridis_c(option="plasma") +
   labs(title="Number of Eviction Filings", fill="# of Eviction") +
   theme_minimal()
+
+
+# Visualization with bayesplot package
+library(bayesplot)
+dim(as.data.frame(fit))
+df_fit <- as.data.frame(fit)
+mcmc_hist(df_fit, pars=c("beta"))
+head(df_fit)
+mcmc_dens(df_fit, pars=c('beta'))
+?mcmc_hist
+mcmc_hist()
+mcmc_intervals(df_fit, pars=c('alpha'))
+mcmc_intervals(df_fit, pars=c('beta_orig[1]','beta_orig[2]'), prob=0.95)
+packageVersion("bayesplot")
