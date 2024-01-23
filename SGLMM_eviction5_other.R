@@ -30,12 +30,12 @@ A_sparse <- A_sparse[A_sparse[,1] < A_sparse[,2], ]
 dim(A_sparse)
 
 # Standardize predictors
-covariates <- c('poverty_rate', 'gross_rent_mt40', 'hh_social_programs', 'hh_w_child_ratio', 
+covariates <- c('poverty_rate', 'gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 
                 'unemployment_rate', 'black_ratio', 'white_ratio', 'asian_ratio', 
-                'hispanic_ratio', 'edu_lt_highschool','median_age', 'hh_nonfamily_ratio', 
-                'renter_occ_rate', 'mortgage_status_ratio', '1unit_structure_ratio', 'vacancy_rate', 
-                'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_30to59', 'time_to_work_mt60',
-                'hh_median_income', 'median_gross_rent',  'housing_median_value', 'hh_average_size_renter_occupied')
+                'hispanic_ratio', 'edu_lt_highschool','median_age', 'hher_female_family_ratio', 'hher_living_alone_ratio',
+                'renter_occ_rate', '1unit_structure_ratio', 'vacancy_rate', 
+                'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_mt60',
+                'hh_median_income', 'median_gross_rent', 'housing_median_value', 'hh_average_size_renter_occupied')
 
 
 df2 <- df_np[covariates]
