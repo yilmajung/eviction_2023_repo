@@ -121,7 +121,7 @@ needed_amenities = ['cafe', 'fast_food', 'restaurant', 'college', 'school', 'uni
 
 # Filter out the non-existing amenities
 df_amenity = df_amenity[df_amenity['amenity'].isin(needed_amenities)]
-
+        
 # Count amenities in each bounding box with 2021 data
 import requests
 import json
