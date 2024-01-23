@@ -34,11 +34,13 @@ dim(A_sparse)
 
 # Standardize predictors
 covariates <- c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'edu_grad',
-                'unemployment_rate', 'black_ratio', 'white_ratio', 'asian_ratio', 
-                'hispanic_ratio', 'median_age', 'hher_female_family_ratio', 'hher_living_alone_ratio', 'mortgage_status_ratio',
+                'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
+                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
+                'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
                 'renter_occ_rate', '1unit_structure_ratio', 'vacancy_rate', 
-                'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_mt60',
-                'hh_median_income', 'median_gross_rent', 'housing_median_value', 'hh_average_size_renter_occupied')
+                'median_gross_rent_change', 'housing_median_value_change',
+                'time_to_work_lt30', 'time_to_work_mt60','hh_median_income', 'median_gross_rent', 
+                'housing_median_value')
 
 
 df2 <- df[covariates]
@@ -49,11 +51,13 @@ df2 <- df[covariates]
 #                    'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_30to59', 'time_to_work_mt60',
 #                    'hh_median_income', 'median_gross_rent',  'housing_median_value', 'hh_average_size_renter_occupied')
 colnames(df2) <- c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'edu_grad',
-                'unemployment_rate', 'black_ratio', 'white_ratio', 'asian_ratio', 
-                'hispanic_ratio', 'median_age', 'hher_female_family_ratio', 'hher_living_alone_ratio', 'mortgage_status_ratio',
-                'renter_occ_rate', 'oneunit_structure_ratio', 'vacancy_rate', 
-                'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_mt60',
-                'hh_median_income', 'median_gross_rent', 'housing_median_value', 'hh_average_size_renter_occupied')
+                    'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
+                    'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
+                    'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
+                    'renter_occ_rate', 'oneunit_structure_ratio', 'vacancy_rate', 
+                    'median_gross_rent_change', 'housing_median_value_change',
+                    'time_to_work_lt30', 'time_to_work_mt60','hh_median_income', 'median_gross_rent', 
+                    'housing_median_value')
 
 
 summary(df2)
@@ -69,11 +73,13 @@ summary(df3)
 # Standardize predictors
 
 covariates <- c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'edu_grad',
-                'unemployment_rate', 'black_ratio', 'white_ratio', 'asian_ratio', 
-                'hispanic_ratio', 'median_age', 'hher_female_family_ratio', 'hher_living_alone_ratio', 'mortgage_status_ratio',
+                'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
+                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
+                'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
                 'renter_occ_rate', 'oneunit_structure_ratio', 'vacancy_rate', 
-                'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_mt60',
-                'hh_median_income', 'median_gross_rent', 'housing_median_value', 'hh_average_size_renter_occupied')
+                'median_gross_rent_change', 'housing_median_value_change',
+                'time_to_work_lt30', 'time_to_work_mt60','hh_median_income', 'median_gross_rent', 
+                'housing_median_value')
 
 
 df3[covariates] <- scale(df3[covariates])
@@ -104,7 +110,7 @@ P_perp[1:10, 1:10]
 dim(A_sparse)[1]
 # Set up the data list for Stan (Y = eviction_rate)
 stan_data <- list(N = nrow(df3), 
-                  K = 23,
+                  K = 22,
                   A_N = dim(A_sparse)[1],
                   Y = df3$eviction_rate,
                   X = X,
@@ -140,36 +146,36 @@ summary(posterior_estimates$beta_orig)
 #   'hh_median_income', 'median_gross_rent',  'housing_median_value', 'hh_average_size_renter_occupied')
 
 c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'edu_grad',
-                'unemployment_rate', 'black_ratio', 'white_ratio', 'asian_ratio', 
-                'hispanic_ratio', 'median_age', 'hher_female_family_ratio', 'hher_living_alone_ratio', 'mortgage_status_ratio',
-                'renter_occ_rate', 'oneunit_structure_ratio', 'vacancy_rate', 
-                'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_mt60',
-                'hh_median_income', 'median_gross_rent', 'housing_median_value', 'hh_average_size_renter_occupied')
-
+  'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
+  'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
+  'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
+  'renter_occ_rate', 'oneunit_structure_ratio', 'vacancy_rate', 
+  'median_gross_rent_change', 'housing_median_value_change',
+  'time_to_work_lt30', 'time_to_work_mt60','hh_median_income', 'median_gross_rent', 
+  'housing_median_value')
 intercept_samples <- posterior_estimates$alpha
 rent_mt50_samples <- posterior_estimates$beta_orig[,1]
 social_program_samples <- posterior_estimates$beta_orig[,2]
 hh_w_child_samples <- posterior_estimates$beta_orig[,3]
 edu_grad_samples <- posterior_estimates$beta_orig[,4]
-unemp_samples <- posterior_estimates$beta_orig[,5]
-black_ratio_samples <- posterior_estimates$beta_orig[,6]
-white_ratio_samples <- posterior_estimates$beta_orig[,7]
-asian_ratio_samples <- posterior_estimates$beta_orig[,8]
+hh_w_child_male_samples <- posterior_estimates$beta_orig[,5]
+hh_w_child_female_samples <- posterior_estimates$beta_orig[,6]
+unemp_samples <- posterior_estimates$beta_orig[,7]
+black_ratio_samples <- posterior_estimates$beta_orig[,8]
 hispanic_ratio_samples <- posterior_estimates$beta_orig[,9]
 medage_samples <- posterior_estimates$beta_orig[,10]
-female_fam_samples <- posterior_estimates$beta_orig[,11]
-living_alone_samples <- posterior_estimates$beta_orig[,12]
-mort_ratio_samples <- posterior_estimates$beta_orig[,13]
-renter_occ_rate_samples <- posterior_estimates$beta_orig[,14]
-unit1_structure_samples <- posterior_estimates$beta_orig[,15]
-vacancy_rate_samples <- posterior_estimates$beta_orig[,16]
-medrent_change_samples <- posterior_estimates$beta_orig[,17]
+living_alone_samples <- posterior_estimates$beta_orig[,11]
+mort_ratio_samples <- posterior_estimates$beta_orig[,12]
+renter_occ_rate_samples <- posterior_estimates$beta_orig[,13]
+unit1_structure_samples <- posterior_estimates$beta_orig[,14]
+vacancy_rate_samples <- posterior_estimates$beta_orig[,15]
+medrent_change_samples <- posterior_estimates$beta_orig[,16]
+medvalue_change_samples <- posterior_estimates$beta_orig[,17]
 time_to_work_lt30_samples <- posterior_estimates$beta_orig[,18]
 time_to_work_mt60_samples <- posterior_estimates$beta_orig[,19]
 medinc_samples <- posterior_estimates$beta_orig[,20]
 medrent_samples <- posterior_estimates$beta_orig[,21]
 medvalue_samples <- posterior_estimates$beta_orig[,22]
-renter_hhsize_samples <- posterior_estimates$beta_orig[,23]
 spatial_effects_samples <- posterior_estimates$W_transformed
 
 # intercept_samples <- posterior_estimates$alpha
