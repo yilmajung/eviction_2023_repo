@@ -45,7 +45,9 @@ var_dict = {
     'B09019_011E':'hh_same_sex_spouse',
     'B09019_013E':'hh_same_sex_unmarried',
     'B11001_002E':'hh_family',
+    'B11001_006E':'hh_family_female_hher',
     'B11001_007E':'hh_nonfamily',
+    'B11001_008E':'hh_living_alone',
     'B15003_002E':'edu_att_over25_no_schooling_completed',
     'B15003_017E':'edu_att_over25_highschool_graduate',
     'B15003_021E':'edu_att_over25_associate_degree',
@@ -115,12 +117,12 @@ var_dict = {
 df = query_census_api_at_block_group(census_api_key, year, var_dict)
 
 # Save dataframe as csv
-df.to_csv('data/acs_data_5y_2021.csv', index=False)
+df.to_csv('data/acs_data_5y_2021_revised.csv', index=False)
 
 
 # Query the change in median gross rent between 2016 and 2021
 # Set census API key, year, and variable dictionary
-year_2016 = '2016'
-var_dict_2016 = {'B25064_001E':'median_gross_rent'}
-df_2016 = query_census_api_at_block_group(census_api_key, year_2016, var_dict_2016)
-df_2016.to_csv('data/acs_data_5y_2016.csv', index=False)
+# year_2016 = '2016'
+# var_dict_2016 = {'B25064_001E':'median_gross_rent'}
+# df_2016 = query_census_api_at_block_group(census_api_key, year_2016, var_dict_2016)
+# df_2016.to_csv('data/acs_data_5y_2016.csv', index=False)
