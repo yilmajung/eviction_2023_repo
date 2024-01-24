@@ -130,16 +130,16 @@ getwd()
 
 # Save the fitted model
 fit@stanmodel@dso <- new('cxxdso')
-saveRDS(fit, file='data/results/fit_other_final.rds')
+saveRDS(fit, file='data/results/fit_nonpayment_final.rds')
 
 # Load the fitted model
-fit <- readRDS("data/results/fit_other_final.rds")
+fit_nonpayment <- readRDS("data/results/fit_nonpayment_final.rds")
 
 # Extract the results
-posterior_estimates <- rstan::extract(fit)
+posterior_estimates <- rstan::extract(fit_nonpayment)
 
-stan_trace(fit, pars=c("beta_orig"))
-stan_trace(fit, pars=c("beta"))
+stan_trace(fit_nonpayment, pars=c("beta_orig"))
+stan_trace(fit_nonpayment, pars=c("beta"))
 stan_trace(posterior_estimates$beta_orig[1:10, 1:10])
 dim(posterior_estimates$beta_orig)
 summary(posterior_estimates$beta_orig)
@@ -222,7 +222,7 @@ dim(intercept_samples)
 df_samples <- data_frame(intercept_samples, rent_mt50_samples, social_program_samples,
                          hh_w_child_samples, edu_grad_samples, hh_w_child_male_samples, hh_w_child_female_samples, 
                          unemp_samples, black_ratio_samples, hispanic_ratio_samples,
-                         medage_samples, living_along_samples, mort_ratio_samples, renter_occ_rate_samples, 
+                         medage_samples, living_alone_samples, mort_ratio_samples, renter_occ_rate_samples, 
                          unit1_structure_samples, vacancy_rate_samples, medrent_change_samples,
                          medvalue_change_samples,
                          time_to_work_lt30_samples, time_to_work_mt60_samples, no_internet_access_samples,
@@ -282,10 +282,10 @@ View(df_95ci)
 # df_95ci <- cbind(df_95ci, df_95ci_orig)
 
 # 90% CI
-df_90ci_orig <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
-df_95ci <- cbind(df_95ci, df_90ci_orig)
-write.csv(df_95ci, "df_95ci_final_nonpayment.csv")
-
+df_90ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
+df_95ci <- cbind(df_95ci, df_90ci)
+write.csv(df_95ci, "data/results/df_95ci_nonpayment_final_2.csv")
+View(df_95ci)
 ################################
 
 
