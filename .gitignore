@@ -58,3 +58,4 @@ data/eviction_count_bg_2021_for_removed_cbg.csv
 data/results/df_95ci_other_final_2.csv
 data/results/df_geom_other_final_2.csv
 data/results/df_samples_other_final_2.csv
+data/results/fit_other_final.rds

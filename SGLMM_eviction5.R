@@ -128,6 +128,13 @@ fit <- stan(file = 'sglmm_orthog_eff_small.stan', data = stan_data,
 summary(fit)
 getwd()
 
+# Save the fitted model
+fit@stanmodel@dso <- new('cxxdso')
+saveRDS(fit, file='data/results/fit_other_final.rds')
+
+# Load the fitted model
+fit <- readRDS("data/results/fit_other_final.rds")
+
 # Extract the results
 posterior_estimates <- rstan::extract(fit)
 
@@ -312,3 +319,41 @@ ggplot(df_geom) +
   scale_fill_viridis_c(option="plasma") +
   labs(title="Number of Eviction Filings", fill="# of Eviction") +
   theme_minimal()
+
+
+# Diagnostics after fitting
+# Visualization with bayesplot package
+library(bayesplot)
+available_mcmc(pattern='_nuts_')
+log_posterior(fit)
+mcmc_parcoord(fit, pars=c("beta_orig[1]", "beta_orig[2]", "beta_orig[3]", "beta_orig[4]",
+                          "beta_orig[5]", "beta_orig[6]", "beta_orig[7]", "beta_orig[8]",
+                          "beta_orig[9]", "beta_orig[10]", "beta_orig[11]", "beta_orig[12]",
+                          "beta_orig[13]", "beta_orig[14]", "beta_orig[15]", "beta_orig[16]",
+                          "beta_orig[17]", "beta_orig[18]", "beta_orig[19]", "beta_orig[20]",
+                          "beta_orig[21]", "beta_orig[22]", "beta_orig[23]"), np=1000)
+?mcmc_parcoord
+# R-hat
+rhats <- rhat(fit)
+print(rhats)
+rhats[3]
+mcmc_rhat(fit$beta[1:10, 1:10])
+
+# Effective sample size
+ratios_cp <- neff_ratio(fit)
+print(ratios_cp)
+
+# Autocorrelation
+mcmc_acf(fit, pars=c("beta_orig[1]", "beta_orig[2]"))
+mcmc_acf(fit, pars=c("beta_orig[1]"))
+
+dim(as.data.frame(fit))
+df_fit <- as.data.frame(fit)
+mcmc_hist(df_fit, pars=c("beta"))
+head(df_fit)
+mcmc_dens(df_fit, pars=c('beta'))
+?mcmc_hist
+mcmc_hist()
+mcmc_intervals(df_fit, pars=c('alpha'))
+mcmc_intervals(df_fit, pars=c('beta_orig[1]','beta_orig[2]'), prob=0.95)
+packageVersion("bayesplot")
