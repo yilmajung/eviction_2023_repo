@@ -57,7 +57,7 @@ colnames(df2) <- c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 
 summary(df2)
 
 # Check missing values pattern
-md.pattern(df2)
+# md.pattern(df2)
 
 # Impute missing values using MICE
 imputed <- mice(df2, m=5, maxit=100, method='pmm', seed=123)
@@ -180,11 +180,13 @@ dim(intercept_samples)
 df_samples <- data_frame(intercept_samples, rent_mt50_samples, social_program_samples,
                          hh_w_child_samples, edu_grad_samples, hh_w_child_male_samples, hh_w_child_female_samples, 
                          unemp_samples, black_ratio_samples, hispanic_ratio_samples,
-                         medage_samples, living_along_samples, mort_ratio_samples, renter_occ_rate_samples, 
+                         medage_samples, living_alone_samples, mort_ratio_samples, renter_occ_rate_samples, 
                          unit1_structure_samples, vacancy_rate_samples, medrent_change_samples,
                          medvalue_change_samples,
                          time_to_work_lt30_samples, time_to_work_mt60_samples, no_internet_access_samples,
                          medinc_samples, medrent_samples, medvalue_samples, spatial_effects_samples)
+dim(df_samples)
+write.csv(df_samples, "data/results/df_samples_other_final_2.csv")
 
 df_95ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.025, 0.975))))
 df_mean <- data_frame(sapply(df_samples, function(x) mean(x)))
@@ -241,24 +243,36 @@ View(df_95ci)
 ################################
 
 # 90% CI
-df_90ci_orig <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
-df_95ci <- cbind(df_95ci, df_90ci_orig)
-write.csv(df_95ci, "df_95ci_final_nonpayment.csv")
-
+df_90ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
+df_95ci <- cbind(df_95ci, df_90ci)
 
 # Save the results
-write_csv(df_95ci, "data/sglmm_results_other.csv")
-
+write.csv(df_95ci, "data/results/df_95ci_other_final_2.csv")
+View(df_95ci)
 
 # Extract the spatial random effects
-dim(spatial_effects_samples)
+# Load removed CBGs
+df_removed <- read_csv('data/eviction_count_bg_2021_for_removed_cbg.csv')
+
+# Add spatial effects to df_np
 avg_spatial_effects <- apply(spatial_effects_samples, 2, mean)
-df_np_geom$spatial_effect <- avg_spatial_effects
-write.csv(df_np_geom, 'data/df_geom_final_other.csv')
+df_np$spatial_effect <- avg_spatial_effects
 
-plot1 <- ggplot(df_np_geom) + geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + 
-  scale_fill_viridis_c() + labs(title="Spatial Random Effects", fill="Effect") + theme_bw() + coord_quickmap()
+# Merge df_np and df_removed
+df_np <- merge(df_np, df_removed, by=c('GEOID', 'geometry_x'), all.y=TRUE)
 
+# Convert df_np to SF object
+df_np <- st_as_sf(df_np, wkt = "geometry_x")
+write.csv(df_np, 'data/results/df_geom_other_final_2.csv')
+
+plot1 <- ggplot(df_np) + 
+        geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + 
+        coord_sf(datum=st_crs(3857)) +
+        scale_fill_viridis_c() + 
+        labs(title="Spatial Random Effects", fill="Spatial Effect") + 
+        theme_bw()
+ggplot(df_np) + geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + scale_fill_viridis_c() +
+theme_bw()
 
 ggplot(df_geom) +
   geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) +
@@ -279,8 +293,13 @@ ggplot(df_geom) +
   theme_minimal()
 
 
+# Diagnostics after fitting
 # Visualization with bayesplot package
 library(bayesplot)
+available_mcmc(pattern='_nuts_')
+log_posterior(fit)
+mcmc_parcoord(fit, pars=c("beta_orig[1]", "beta_orig[2]"))
+
 dim(as.data.frame(fit))
 df_fit <- as.data.frame(fit)
 mcmc_hist(df_fit, pars=c("beta"))

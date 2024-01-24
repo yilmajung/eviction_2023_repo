@@ -54,3 +54,7 @@ data/results/df_geom_final_nonpayment.csv
 data/df_geom_final_other.csv
 data/results/df_95ci_final_other.csv
 data/acs_data_5y_2021_revised.csv
+data/eviction_count_bg_2021_for_removed_cbg.csv
+data/results/df_95ci_other_final_2.csv
+data/results/df_geom_other_final_2.csv
+data/results/df_samples_other_final_2.csv
