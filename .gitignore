@@ -62,3 +62,7 @@ data/results/fit_other_final.rds
 data/df_95ci_nonpayment_final_2.csv
 data/results/fit_nonpayment_final.rds
 data/results/df_95ci_nonpayment_final_2.csv
+data/figures/fig_results.png
+results_visualization.pdf
+figures_eviction_study.pptx
+~$figures_eviction_study.pptx
