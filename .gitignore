@@ -66,3 +66,8 @@ data/figures/fig_results.png
 results_visualization.pdf
 figures_eviction_study.pptx
 ~$figures_eviction_study.pptx
+data/results/df_geom_nonpayment_final_2.csv
+data/dallas_top_filers.csv
+.gitignore
+data/df_other_100_filer.csv
+data/df_nonpay_100_filer.csv
