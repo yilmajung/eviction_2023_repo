@@ -294,6 +294,8 @@ spatial_effects <- posterior_estimates$W_transformed
 dim(spatial_effects)
 avg_spatial_effects <- apply(spatial_effects, 2, mean)
 df_geom$spatial_effect <- avg_spatial_effects
+
+head(df_geom)
 write.csv(df_geom, 'df_geom_final_nonpayment.csv')
 
 class(df_geom)
