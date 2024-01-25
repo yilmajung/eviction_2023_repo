@@ -288,20 +288,61 @@ write.csv(df_95ci, "data/results/df_95ci_nonpayment_final_2.csv")
 View(df_95ci)
 ################################
 
-
 # Extract the spatial random effects
 spatial_effects <- posterior_estimates$W_transformed
 dim(spatial_effects)
 avg_spatial_effects <- apply(spatial_effects, 2, mean)
-df_geom$spatial_effect <- avg_spatial_effects
 
-head(df_geom)
-write.csv(df_geom, 'df_geom_final_nonpayment.csv')
+# Load removed CBGs
+df_removed <- read_csv('data/eviction_count_bg_2021_for_removed_cbg.csv')
+head(df_removed)
 
-class(df_geom)
+# Add spatial effects to df_np
+df$spatial_effect <- avg_spatial_effects
 
-plot1 <- ggplot(df_geom) + geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + 
-  scale_fill_viridis_c() + labs(title="Spatial Random Effects", fill="Effect") + theme_minimal()
+# Merge df_np and df_removed
+df <- merge(df, df_removed, by=c('GEOID', 'geometry_x'), all.y=TRUE)
+
+# Convert df_np to SF object
+df <- st_as_sf(df, wkt = "geometry_x")
+write.csv(df, 'data/results/df_geom_nonpayment_final_2.csv')
+
+plot1 <- ggplot(df) + 
+         geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + 
+         scale_fill_viridis_c() + 
+         labs(title="Spatial Random Effects", fill="Effect") + 
+         theme_minimal()
+
+criteria <- quantile(df$spatial_effect, probs=c(0.025, 0.975), na.rm=TRUE)
+
+df %>%
+mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%
+ggplot() + 
+         geom_sf(aes(fill=bus_prac, geometry=geometry_x), color=NA) + 
+         scale_fill_viridis_c() + 
+         labs(title="Spatial Random Effects", fill="Effect") + 
+         theme_minimal()
+
+# Load Dallas top filers data
+df_top <- read_csv('data/dallas_top_filers.csv')
+head(df_top)
+df %>%
+mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%
+ggplot() + 
+         geom_sf(aes(fill=bus_prac, geometry=geometry_x), color=NA) + 
+         scale_fill_viridis_c() + 
+         geom_point(data=df_top, aes(x=lon, y=lat, size=filings), color='red') +
+         labs(title="Spatial Random Effects", fill="Effect") + 
+         theme_minimal()
+
+
+
+df %>%
+         ggplot() + 
+         geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + 
+         scale_fill_viridis_c() + 
+         labs(title="Spatial Random Effects", fill="Effect") + 
+         theme_minimal()
 
 
 ggplot(df_geom) +
