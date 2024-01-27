@@ -71,3 +71,9 @@ data/dallas_top_filers.csv
 .gitignore
 data/df_other_100_filer.csv
 data/df_nonpay_100_filer.csv
+fig_nonpayment_se.pdf
+.gitignore
+data/figures/fig_spatial_effect.png
+.gitignore
+data/figures/fig_spatial_effict.png
+fig_other_se.pdf

@@ -304,7 +304,11 @@ df$spatial_effect <- avg_spatial_effects
 df <- merge(df, df_removed, by=c('GEOID', 'geometry_x'), all.y=TRUE)
 
 # Convert df_np to SF object
-df <- st_as_sf(df, wkt = "geometry_x")
+?st_as_sf
+class(df$geometry_x)
+df$geometry_x
+st_crs(df) <- 4326
+df <- st_as_sf(df, wkt = "geometry_x", crs=4326)
 write.csv(df, 'data/results/df_geom_nonpayment_final_2.csv')
 
 plot1 <- ggplot(df) + 
@@ -313,7 +317,7 @@ plot1 <- ggplot(df) +
          labs(title="Spatial Random Effects", fill="Effect") + 
          theme_minimal()
 
-criteria <- quantile(df$spatial_effect, probs=c(0.025, 0.975), na.rm=TRUE)
+criteria <- quantile(df$spatial_effect, probs=c(0.05, 0.95), na.rm=TRUE)
 
 df %>%
 mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%
@@ -324,44 +328,23 @@ ggplot() +
          theme_minimal()
 
 # Load Dallas top filers data
-df_top <- read_csv('data/dallas_top_filers.csv')
+df_top_nonpayment <- read_csv('data/df_nonpay_100_filer.csv')
 head(df_top)
-df %>%
+
+fig_nonpayment_se <- df %>%
 mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%
+mutate(bus_prac = ifelse(is.na(bus_prac), 0, bus_prac)) %>%
 ggplot() + 
-         geom_sf(aes(fill=bus_prac, geometry=geometry_x), color=NA) + 
-         scale_fill_viridis_c() + 
-         geom_point(data=df_top, aes(x=lon, y=lat, size=filings), color='red') +
-         labs(title="Spatial Random Effects", fill="Effect") + 
-         theme_minimal()
+         geom_sf(aes(fill=factor(bus_prac, label=c('Low', 'Moderate', 'High')), geometry=geometry_x), color='darkgrey') + 
+         scale_fill_manual(values=c(Zissou1[1], Zissou1[5], Zissou1[3])) +
+         geom_point(data=df_top_nonpayment, aes(x=X, y=Y, size=case_number), color="#00CC99", alpha=.7) +
+         scale_size(range=c(.3,10)) +
+         labs(fill="Spatial Effects", x="", y="", size="Top 100 Landlords\nFiling Counts\n(2017-2021)") + 
+         theme_bw()
 
+ggexport(fig_nonpayment_se, filename = "fig_nonpayment_se.pdf", width = 8, height = 6, units = "in", dpi = 300)
 
-
-df %>%
-         ggplot() + 
-         geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + 
-         scale_fill_viridis_c() + 
-         labs(title="Spatial Random Effects", fill="Effect") + 
-         theme_minimal()
-
-
-ggplot(df_geom) +
-  geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) +
-  scale_fill_viridis_c() +
-  labs(title="Spatial Random Effects", fill="Effect") +
-  theme_minimal()
-
-ggplot(df_geom) +
-  geom_sf(aes(fill=spatial_effect), color=NA) +
-  scale_fill_gradient2(midpoint=0, low='blue', mid='yellow', high='red', space='Lab') +
-  labs(title="Spatial Random Effects", fill="Effect") +
-  theme_minimal()
-
-ggplot(df_geom) +
-  geom_sf(aes(fill=case_number), color=NA) +
-  scale_fill_viridis_c(option="plasma") +
-  labs(title="Number of Eviction Filings", fill="# of Eviction") +
-  theme_minimal()
+unique(df$bus_prac)
 
 
 # Diagnostics after fitting
