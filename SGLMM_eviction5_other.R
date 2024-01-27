@@ -271,16 +271,66 @@ df_np <- merge(df_np, df_removed, by=c('GEOID', 'geometry_x'), all.y=TRUE)
 
 # Convert df_np to SF object
 df_np <- st_as_sf(df_np, wkt = "geometry_x")
+st_crs(df_np) <- 4326
 write.csv(df_np, 'data/results/df_geom_other_final_2.csv')
+head(df_np)
 
+# Load Dallas top filers data
+df_top_other <- read_csv('data/df_other_100_filer.csv')
+head(df_top)
+criteria <- quantile(df_np$spatial_effect, probs=c(0.05, 0.95), na.rm=TRUE)
+
+fig_other_se <- df_np %>%
+mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%
+mutate(bus_prac = ifelse(is.na(bus_prac), 0, bus_prac)) %>%
+ggplot() + 
+         geom_sf(aes(fill=factor(bus_prac, label=c('Low', 'Moderate', 'High')), geometry=geometry_x), color='darkgrey') + 
+         scale_fill_manual(values=c(Zissou1[1], Zissou1[5], Zissou1[3])) +
+         geom_point(data=df_top_other, aes(x=X, y=Y, size=case_number), color="#CCFF00", alpha=.7) +
+         scale_size(range=c(.3,5)) +
+         labs(fill="Spatial Effects", x="", y="", size="Top 100 Landlords\nFiling Counts\n(2017-2021)") + 
+         theme_bw()
+
+ggexport(fig_other_se, filename = "fig_other_se.pdf", width = 8, height = 6, units = "in", dpi = 300)
+
+
+
+
+
+
+#########################
 plot1 <- ggplot(df_np) + 
         geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + 
-        coord_sf(datum=st_crs(3857)) +
         scale_fill_viridis_c() + 
         labs(title="Spatial Random Effects", fill="Spatial Effect") + 
         theme_bw()
 ggplot(df_np) + geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + scale_fill_viridis_c() +
 theme_bw()
+
+df_top_other <- read_csv('data/df_other_100_filer.csv')
+head(df_top)
+df %>%
+mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%
+mutate(bus_prac = ifelse(is.na(bus_prac), 0, bus_prac)) %>%
+ggplot() + 
+         geom_sf(aes(fill=factor(bus_prac, label=c('Low', 'Predictable', 'High')), geometry=geometry_x), color=NA) + 
+         scale_fill_manual(values=c(Zissou1[1], Zissou1[5], Zissou1[3])) +
+         geom_point(data=df_top_other, aes(x=X, y=Y, size=case_number), color='#fde725', alpha=.8) +
+         labs(title="Spatial Random Effects", fill="Effect") + 
+         theme_minimal() +
+         coord_sf(default_crs = st_crs(4326), expand = FALSE)
+unique(df$bus_prac)
+df
+
+
+
+
+
+
+
+
+
+
 
 ggplot(df_geom) +
   geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) +
