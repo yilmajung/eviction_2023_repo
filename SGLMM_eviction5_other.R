@@ -34,10 +34,19 @@ covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad',
                 'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
-                'renter_occ_rate', '1unit_structure_ratio', 'vacancy_rate', 
+                '1unit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
+
+# covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad',
+#                 'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
+#                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
+#                 'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
+#                 'renter_occ_rate', '1unit_structure_ratio', 'vacancy_rate', 
+#                 'median_gross_rent_change', 'housing_median_value_change',
+#                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
+#                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
 
 df2 <- df_np[covariates]
 # colnames(df2) <- c('poverty_rate', 'gross_rent_mt40', 'hh_social_programs', 'hh_w_child_ratio', 
@@ -50,7 +59,7 @@ colnames(df2) <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad',
                 'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
-                'renter_occ_rate', 'oneunit_structure_ratio', 'vacancy_rate', 
+                'oneunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
@@ -70,7 +79,7 @@ covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad',
                 'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
-                'renter_occ_rate', 'oneunit_structure_ratio', 'vacancy_rate', 
+                'oneunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
@@ -79,8 +88,8 @@ df3[covariates] <- scale(df3[covariates])
 head(df3)
 head(df_np$eviction_rate)
 head(df_np$eviction_rate_renter)
-df3 <- cbind(df_np$case_number, df_np$eviction_rate, df3)
-colnames(df3)[1:2] <- c("case_number", "eviction_rate")
+df3 <- cbind(df_np$case_number, df_np$eviction_rate_renter, df3)
+colnames(df3)[1:2] <- c("case_number", "eviction_rate_renter")
 dim(df3)
 
 #tempdir()
@@ -105,7 +114,7 @@ dim(XX_inv_tx)
 
 # Set up the data list for Stan (Y = eviction_rate)
 stan_data <- list(N = nrow(df3), 
-                  K = 23,
+                  K = 22,
                   A_N = dim(A_sparse)[1],
                   Y = df3$eviction_rate,
                   X = X,
@@ -125,10 +134,10 @@ getwd()
 
 # Save the fitted model
 fit@stanmodel@dso <- new('cxxdso')
-saveRDS(fit, file='data/results/fit_other_final.rds')
+saveRDS(fit, file='data/results/fit_other_final3.rds')
 
 # Load the fitted model
-fit <- readRDS("data/results/fit_other_final.rds")
+fit <- readRDS("data/results/fit_other_final3.rds")
 
 
 # Extract the results
@@ -147,11 +156,11 @@ summary(posterior_estimates$beta_orig)
 #   'renter_occ_rate', 'mortgage_status_ratio', 'oneunit_structure_ratio', 'vacancy_rate', 
 #   'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_30to59', 'time_to_work_mt60',
 #   'hh_median_income', 'median_gross_rent',  'housing_median_value', 'hh_average_size_renter_occupied')
-c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'edu_grad',
+c('gross_rent_mt50', 'hh_social_programs', 'edu_grad',
                 'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
-                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
+                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
-                'renter_occ_rate', 'oneunit_structure_ratio', 'vacancy_rate', 
+                'oneunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
@@ -159,27 +168,26 @@ c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'edu_grad',
 intercept_samples <- posterior_estimates$alpha
 rent_mt50_samples <- posterior_estimates$beta_orig[,1]
 social_program_samples <- posterior_estimates$beta_orig[,2]
-hh_w_child_samples <- posterior_estimates$beta_orig[,3]
-edu_grad_samples <- posterior_estimates$beta_orig[,4]
-hh_w_child_male_samples <- posterior_estimates$beta_orig[,5]
-hh_w_child_female_samples <- posterior_estimates$beta_orig[,6]
-unemp_samples <- posterior_estimates$beta_orig[,7]
-black_ratio_samples <- posterior_estimates$beta_orig[,8]
-hispanic_ratio_samples <- posterior_estimates$beta_orig[,9]
+edu_grad_samples <- posterior_estimates$beta_orig[,3]
+hh_w_child_male_samples <- posterior_estimates$beta_orig[,4]
+hh_w_child_female_samples <- posterior_estimates$beta_orig[,5]
+unemp_samples <- posterior_estimates$beta_orig[,6]
+black_ratio_samples <- posterior_estimates$beta_orig[,7]
+hispanic_ratio_samples <- posterior_estimates$beta_orig[,8]
+asian_ratio_samples <- posterior_estimates$beta_orig[,9]
 medage_samples <- posterior_estimates$beta_orig[,10]
 living_alone_samples <- posterior_estimates$beta_orig[,11]
 mort_ratio_samples <- posterior_estimates$beta_orig[,12]
-renter_occ_rate_samples <- posterior_estimates$beta_orig[,13]
-unit1_structure_samples <- posterior_estimates$beta_orig[,14]
-vacancy_rate_samples <- posterior_estimates$beta_orig[,15]
-medrent_change_samples <- posterior_estimates$beta_orig[,16]
-medvalue_change_samples <- posterior_estimates$beta_orig[,17]
-time_to_work_lt30_samples <- posterior_estimates$beta_orig[,18]
-time_to_work_mt60_samples <- posterior_estimates$beta_orig[,19]
-no_internet_access_samples <- posterior_estimates$beta_orig[,20]
-medinc_samples <- posterior_estimates$beta_orig[,21]
-medrent_samples <- posterior_estimates$beta_orig[,22]
-medvalue_samples <- posterior_estimates$beta_orig[,23]
+unit1_structure_samples <- posterior_estimates$beta_orig[,13]
+vacancy_rate_samples <- posterior_estimates$beta_orig[,14]
+medrent_change_samples <- posterior_estimates$beta_orig[,15]
+medvalue_change_samples <- posterior_estimates$beta_orig[,16]
+time_to_work_lt30_samples <- posterior_estimates$beta_orig[,17]
+time_to_work_mt60_samples <- posterior_estimates$beta_orig[,18]
+no_internet_access_samples <- posterior_estimates$beta_orig[,19]
+medinc_samples <- posterior_estimates$beta_orig[,20]
+medrent_samples <- posterior_estimates$beta_orig[,21]
+medvalue_samples <- posterior_estimates$beta_orig[,22]
 spatial_effects_samples <- posterior_estimates$W_transformed
 
 dim(posterior_estimates$beta_orig)
@@ -189,15 +197,24 @@ dim(intercept_samples)
 
 # Create a data frame for 4000 samples
 df_samples <- data_frame(intercept_samples, rent_mt50_samples, social_program_samples,
-                         hh_w_child_samples, edu_grad_samples, hh_w_child_male_samples, hh_w_child_female_samples, 
-                         unemp_samples, black_ratio_samples, hispanic_ratio_samples,
-                         medage_samples, living_alone_samples, mort_ratio_samples, renter_occ_rate_samples, 
+                         edu_grad_samples, hh_w_child_male_samples, hh_w_child_female_samples, 
+                         unemp_samples, black_ratio_samples, hispanic_ratio_samples, asian_ratio_samples,
+                         medage_samples, living_alone_samples, mort_ratio_samples, 
                          unit1_structure_samples, vacancy_rate_samples, medrent_change_samples,
                          medvalue_change_samples,
                          time_to_work_lt30_samples, time_to_work_mt60_samples, no_internet_access_samples,
                          medinc_samples, medrent_samples, medvalue_samples, spatial_effects_samples)
+
+# df_samples <- data_frame(intercept_samples, rent_mt50_samples, social_program_samples,
+#                          hh_w_child_samples, edu_grad_samples, hh_w_child_male_samples, hh_w_child_female_samples, 
+#                          unemp_samples, black_ratio_samples, hispanic_ratio_samples,
+#                          medage_samples, living_alone_samples, mort_ratio_samples, renter_occ_rate_samples, 
+#                          unit1_structure_samples, vacancy_rate_samples, medrent_change_samples,
+#                          medvalue_change_samples,
+#                          time_to_work_lt30_samples, time_to_work_mt60_samples, no_internet_access_samples,
+#                          medinc_samples, medrent_samples, medvalue_samples, spatial_effects_samples)
 dim(df_samples)
-write.csv(df_samples, "data/results/df_samples_other_final_2.csv")
+write.csv(df_samples, "data/results/df_samples_other_final_3.csv")
 
 df_95ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.025, 0.975))))
 df_mean <- data_frame(sapply(df_samples, function(x) mean(x)))
