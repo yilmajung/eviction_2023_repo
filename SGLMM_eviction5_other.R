@@ -116,7 +116,7 @@ dim(XX_inv_tx)
 stan_data <- list(N = nrow(df3), 
                   K = 22,
                   A_N = dim(A_sparse)[1],
-                  Y = df3$eviction_rate,
+                  Y = df3$eviction_rate_renter,
                   X = X,
                   A_sparse = A_sparse,
                   P_perp = P_perp,
