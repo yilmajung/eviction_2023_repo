@@ -30,9 +30,9 @@ A_sparse <- A_sparse[A_sparse[,1] < A_sparse[,2], ]
 dim(A_sparse)
 
 # Standardize predictors
-covariates <- c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'edu_grad',
+covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad',
                 'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
-                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
+                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
                 'renter_occ_rate', '1unit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
@@ -46,9 +46,9 @@ df2 <- df_np[covariates]
 #                    'renter_occ_rate', 'mortgage_status_ratio', 'oneunit_structure_ratio', 'vacancy_rate', 
 #                    'median_gross_rent_change', 'time_to_work_lt30', 'time_to_work_30to59', 'time_to_work_mt60',
 #                    'hh_median_income', 'median_gross_rent',  'housing_median_value', 'hh_average_size_renter_occupied')
-colnames(df2) <- c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'edu_grad',
+colnames(df2) <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad',
                 'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
-                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
+                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
                 'renter_occ_rate', 'oneunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
@@ -66,9 +66,9 @@ summary(df3)
 
 # Standardize predictors
 
-covariates <- c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'edu_grad',
+covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad',
                 'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
-                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 
+                'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hher_living_alone_ratio', 'mortgage_status_ratio',
                 'renter_occ_rate', 'oneunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
@@ -76,6 +76,9 @@ covariates <- c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'ed
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
 
 df3[covariates] <- scale(df3[covariates])
+head(df3)
+head(df_np$eviction_rate)
+head(df_np$eviction_rate_renter)
 df3 <- cbind(df_np$case_number, df_np$eviction_rate, df3)
 colnames(df3)[1:2] <- c("case_number", "eviction_rate")
 dim(df3)
