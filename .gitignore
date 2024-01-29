@@ -77,3 +77,11 @@ data/figures/fig_spatial_effect.png
 .gitignore
 data/figures/fig_spatial_effict.png
 fig_other_se.pdf
+fig_other_se2.pdf
+data/results/df_95ci_other_final_3.csv
+data/results/df_geom_other_final_3.csv
+data/results/df_samples_other_final_3.csv
+data/results/fit_other_final3.rds
+data/results/df_95ci_nonpayment_final_3.csv
+data/results/df_geom_nonpayment_final_3.csv
+data/results/fit_nonpayment_final3.rds

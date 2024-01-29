@@ -270,51 +270,6 @@ dim(df_mean)
 df_95ci <- cbind(df_95ci, df_mean)
 View(df_95ci)
 
-# #########################
-# # Add original beta values
-
-# intercept_samples <- posterior_estimates$alpha
-# poverty_samples <- posterior_estimates$beta_orig[,1]
-# rent_mt40_samples <- posterior_estimates$beta_orig[,2]
-# social_program_samples <- posterior_estimates$beta_orig[,3]
-# hh_w_child_samples <- posterior_estimates$beta_orig[,4]
-# unemp_samples <- posterior_estimates$beta_orig[,5]
-# black_ratio_samples <- posterior_estimates$beta_orig[,6]
-# white_ratio_samples <- posterior_estimates$beta_orig[,7]
-# asian_ratio_samples <- posterior_estimates$beta_orig[,8]
-# hispanic_ratio_samples <- posterior_estimates$beta_orig[,9]
-# edu_lt_hs_samples <- posterior_estimates$beta_orig[,10]
-# medage_samples <- posterior_estimates$beta_orig[,11]
-# nonfam_samples <- posterior_estimates$beta_orig[,12]
-# renter_occ_rate_samples <- posterior_estimates$beta_orig[,13]
-# mort_ratio_samples <- posterior_estimates$beta_orig[,14]
-# unit1_structure_samples <- posterior_estimates$beta_orig[,15]
-# vacancy_rate_samples <- posterior_estimates$beta_orig[,16]
-# medrent_change_samples <- posterior_estimates$beta_orig[,17]
-# time_to_work_lt30_samples <- posterior_estimates$beta_orig[,18]
-# time_to_work_30to59_samples <- posterior_estimates$beta_orig[,19]
-# time_to_work_mt60_samples <- posterior_estimates$beta_orig[,20]
-# medinc_samples <- posterior_estimates$beta_orig[,21]
-# medrent_samples <- posterior_estimates$beta_orig[,22]
-# medvalue_samples <- posterior_estimates$beta_orig[,23]
-# renter_hhsize_samples <- posterior_estimates$beta_orig[,24]
-# spatial_effects_samples <- posterior_estimates$W_transformed
-
-# df_samples_orig <- data_frame(intercept_samples, poverty_samples, rent_mt40_samples, social_program_samples,
-#                               hh_w_child_samples, unemp_samples, black_ratio_samples, white_ratio_samples,
-#                               asian_ratio_samples, hispanic_ratio_samples, edu_lt_hs_samples, 
-#                               medage_samples, nonfam_samples, renter_occ_rate_samples, mort_ratio_samples, 
-#                               unit1_structure_samples, vacancy_rate_samples, medrent_change_samples,
-#                               time_to_work_lt30_samples, time_to_work_30to59_samples, time_to_work_mt60_samples,
-#                               medinc_samples, medrent_samples, medvalue_samples, renter_hhsize_samples, spatial_effects_samples)
-
-# write.csv(df_samples_orig, "df_samples_orig_final.csv")
-# df_95ci_orig <- t(sapply(df_samples_orig, function(x) quantile(x, probs = c(0.025, 0.975))))
-# df_mean_orig <- data_frame(sapply(df_samples_orig, function(x) mean(x)))
-# dim(df_95ci_orig)
-# dim(df_mean_orig)
-# df_95ci_orig <- cbind(df_95ci_orig, df_mean_orig)
-# df_95ci <- cbind(df_95ci, df_95ci_orig)
 
 # 90% CI
 df_90ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
@@ -337,14 +292,19 @@ df$spatial_effect <- avg_spatial_effects
 
 # Merge df_np and df_removed
 df <- merge(df, df_removed, by=c('GEOID', 'geometry_x'), all.y=TRUE)
-
+dim(df)
 # Convert df_np to SF object
 ?st_as_sf
 class(df$geometry_x)
 df$geometry_x
-st_crs(df) <- 4326
 df <- st_as_sf(df, wkt = "geometry_x", crs=4326)
-write.csv(df, 'data/results/df_geom_nonpayment_final_2.csv')
+st_crs(df) <- 4326
+
+write.csv(df, 'data/results/df_geom_nonpayment_final_3.csv')
+
+
+
+
 
 plot1 <- ggplot(df) + 
          geom_sf(aes(fill=spatial_effect, geometry=geometry_x), color=NA) + 
@@ -352,7 +312,9 @@ plot1 <- ggplot(df) +
          labs(title="Spatial Random Effects", fill="Effect") + 
          theme_minimal()
 
-criteria <- quantile(df$spatial_effect, probs=c(0.05, 0.95), na.rm=TRUE)
+criteria <- quantile(df$spatial_effect, probs=c(0.025, 0.975), na.rm=TRUE)
+Zissou1 <- c('#2ca1db', '#112047', '#f44323', '#dfb78e', '#ccd5dd')
+library(ggpubr)
 
 df %>%
 mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%
@@ -364,7 +326,7 @@ ggplot() +
 
 # Load Dallas top filers data
 df_top_nonpayment <- read_csv('data/df_nonpay_100_filer.csv')
-head(df_top)
+head(df_top_nonpayment)
 
 fig_nonpayment_se <- df %>%
 mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%

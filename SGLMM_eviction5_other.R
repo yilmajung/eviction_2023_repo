@@ -223,82 +223,37 @@ dim(df_mean)
 df_95ci <- cbind(df_95ci, df_mean)
 View(df_95ci)
 
-#########################
-# # Add original beta values
-
-# intercept_samples <- posterior_estimates$alpha
-# poverty_samples <- posterior_estimates$beta_orig[,1]
-# rent_mt40_samples <- posterior_estimates$beta_orig[,2]
-# social_program_samples <- posterior_estimates$beta_orig[,3]
-# hh_w_child_samples <- posterior_estimates$beta_orig[,4]
-# unemp_samples <- posterior_estimates$beta_orig[,5]
-# black_ratio_samples <- posterior_estimates$beta_orig[,6]
-# white_ratio_samples <- posterior_estimates$beta_orig[,7]
-# asian_ratio_samples <- posterior_estimates$beta_orig[,8]
-# hispanic_ratio_samples <- posterior_estimates$beta_orig[,9]
-# edu_lt_hs_samples <- posterior_estimates$beta_orig[,10]
-# medage_samples <- posterior_estimates$beta_orig[,11]
-# nonfam_samples <- posterior_estimates$beta_orig[,12]
-# renter_occ_rate_samples <- posterior_estimates$beta_orig[,13]
-# mort_ratio_samples <- posterior_estimates$beta_orig[,14]
-# unit1_structure_samples <- posterior_estimates$beta_orig[,15]
-# vacancy_rate_samples <- posterior_estimates$beta_orig[,16]
-# medrent_change_samples <- posterior_estimates$beta_orig[,17]
-# time_to_work_lt30_samples <- posterior_estimates$beta_orig[,18]
-# time_to_work_30to59_samples <- posterior_estimates$beta_orig[,19]
-# time_to_work_mt60_samples <- posterior_estimates$beta_orig[,20]
-# medinc_samples <- posterior_estimates$beta_orig[,21]
-# medrent_samples <- posterior_estimates$beta_orig[,22]
-# medvalue_samples <- posterior_estimates$beta_orig[,23]
-# renter_hhsize_samples <- posterior_estimates$beta_orig[,24]
-# spatial_effects_samples <- posterior_estimates$W_transformed
-
-# df_samples_orig <- data_frame(intercept_samples, poverty_samples, rent_mt40_samples, social_program_samples,
-#                               hh_w_child_samples, unemp_samples, black_ratio_samples, white_ratio_samples,
-#                               asian_ratio_samples, hispanic_ratio_samples, edu_lt_hs_samples, 
-#                               medage_samples, nonfam_samples, renter_occ_rate_samples, mort_ratio_samples, 
-#                               unit1_structure_samples, vacancy_rate_samples, medrent_change_samples,
-#                               time_to_work_lt30_samples, time_to_work_30to59_samples, time_to_work_mt60_samples,
-#                               medinc_samples, medrent_samples, medvalue_samples, renter_hhsize_samples, spatial_effects_samples)
-
-# df_95ci_orig <- t(sapply(df_samples_orig, function(x) quantile(x, probs = c(0.025, 0.975))))
-# df_mean_orig <- data_frame(sapply(df_samples_orig, function(x) mean(x)))
-# dim(df_95ci_orig)
-# dim(df_mean_orig)
-# df_95ci_orig <- cbind(df_95ci_orig, df_mean_orig)
-# df_95ci <- cbind(df_95ci, df_95ci_orig)
-# View(df_95ci)
-################################
-
 # 90% CI
 df_90ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
 df_95ci <- cbind(df_95ci, df_90ci)
 
 # Save the results
-write.csv(df_95ci, "data/results/df_95ci_other_final_2.csv")
+write.csv(df_95ci, "data/results/df_95ci_other_final_3.csv")
 View(df_95ci)
 
 # Extract the spatial random effects
 # Load removed CBGs
 df_removed <- read_csv('data/eviction_count_bg_2021_for_removed_cbg.csv')
-
+dim(df_removed)
 # Add spatial effects to df_np
 avg_spatial_effects <- apply(spatial_effects_samples, 2, mean)
 df_np$spatial_effect <- avg_spatial_effects
 
 # Merge df_np and df_removed
 df_np <- merge(df_np, df_removed, by=c('GEOID', 'geometry_x'), all.y=TRUE)
-
+dim(df_np)
 # Convert df_np to SF object
 df_np <- st_as_sf(df_np, wkt = "geometry_x")
 st_crs(df_np) <- 4326
-write.csv(df_np, 'data/results/df_geom_other_final_2.csv')
+write.csv(df_np, 'data/results/df_geom_other_final_3.csv')
 head(df_np)
 
 # Load Dallas top filers data
 df_top_other <- read_csv('data/df_other_100_filer.csv')
 head(df_top)
 criteria <- quantile(df_np$spatial_effect, probs=c(0.05, 0.95), na.rm=TRUE)
+Zissou1 <- c('#2ca1db', '#112047', '#f44323', '#dfb78e', '#ccd5dd')
+library(ggpubr)
 
 fig_other_se <- df_np %>%
 mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%
@@ -311,7 +266,7 @@ ggplot() +
          labs(fill="Spatial Effects", x="", y="", size="Top 100 Landlords\nFiling Counts\n(2017-2021)") + 
          theme_bw()
 
-ggexport(fig_other_se, filename = "fig_other_se.pdf", width = 8, height = 6, units = "in", dpi = 300)
+ggexport(fig_other_se, filename = "fig_other_se2.pdf", width = 8, height = 6, units = "in", dpi = 300)
 
 
 
