@@ -85,9 +85,10 @@ covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad',
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
 
 df3[covariates] <- scale(df3[covariates])
-head(df3)
+head(df3$hh_w_child_female_hh_ratio)
 head(df_np$eviction_rate)
 head(df_np$eviction_rate_renter)
+
 df3 <- cbind(df_np$case_number, df_np$eviction_rate_renter, df3)
 colnames(df3)[1:2] <- c("case_number", "eviction_rate_renter")
 dim(df3)
@@ -126,7 +127,7 @@ stan_data <- list(N = nrow(df3),
 
 # Fit the model
 fit <- stan(file = 'sglmm_orthog_eff_small.stan', data = stan_data, 
-            iter=10000, chains=4, cores=4, warmup=4000, thin=5,
+            iter=12000, chains=4, cores=4, warmup=5000, thin=5,
             control = list(adapt_delta = 0.9, max_treedepth = 15))
 
 summary(fit)
@@ -134,10 +135,10 @@ getwd()
 
 # Save the fitted model
 fit@stanmodel@dso <- new('cxxdso')
-saveRDS(fit, file='data/results/fit_other_final3.rds')
+saveRDS(fit, file='data/results/fit_other_final4.rds')
 
 # Load the fitted model
-fit <- readRDS("data/results/fit_other_final3.rds")
+fit <- readRDS("data/results/fit_other_final4.rds")
 
 
 # Extract the results

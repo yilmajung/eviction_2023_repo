@@ -2,26 +2,36 @@
 library(tidyverse)
 
 # Read in data
-df_nonpay <- read_csv("data/results/df_95ci_nonpayment_final_2.csv")
+df_nonpay <- read_csv("data/results/df_95ci_nonpayment_final_3.csv")
 head(df_nonpay)
 colnames(df_nonpay) <- c("fixed", "lb_95", "ub_95", "beta_hat", "lb_90", "ub_90")
 
-df_other <- read_csv("data/results/df_95ci_other_final_2.csv")
+df_other <- read_csv("data/results/df_95ci_other_final_3.csv")
 colnames(df_other) <- c("fixed", "lb_95", "ub_95", "beta_hat", "lb_90", "ub_90")
 
+unique(df_nonpay$fixed)
+length(unique(df_other$fixed))
+
 df_nonpay$fixed <- c("intercept_samples", "rent >= 50%", "social programs",
-"with children", "education >= graduate", "male householder", "female householder", "unemployment", 
-"black pop", "hispanic pop", "median age", "living alone", "mortgage ratio",
-"renter ratio", "single-unit str", "vacancy ratio", "median rent increase", "median value increase",
+"education >= graduate", "male hher w/ children", "female hher w/ children", "unemployment", 
+"black pop", "hispanic pop", "asian pop", "median age", "living alone", "mortgage ratio",
+"single-unit str", "vacancy ratio", "median rent increase", "median value increase",
 "time to work < 30m", "time to work >= 60m", "no internet", "median income",
 "median rent", "median house value", "spatial_effects_samples")
 
 df_other$fixed <- c("intercept_samples", "rent >= 50%", "social programs",
-"with children", "education >= graduate", "male householder", "female householder", "unemployment", 
-"black pop", "hispanic pop", "median age", "living alone", "mortgage ratio",
-"renter ratio", "single-unit str", "vacancy ratio", "median rent increase", "median value increase",
+"education >= graduate", "male hher w/ children", "female hher w/ children", "unemployment", 
+"black pop", "hispanic pop", "asian pop", "median age", "living alone", "mortgage ratio",
+"single-unit str", "vacancy ratio", "median rent increase", "median value increase",
 "time to work < 30m", "time to work >= 60m", "no internet", "median income",
 "median rent", "median house value", "spatial_effects_samples")
+
+# c("intercept_samples", "rent >= 50%", "social programs",
+# "with children", "education >= graduate", "male householder", "female householder", "unemployment", 
+# "black pop", "hispanic pop", "median age", "living alone", "mortgage ratio",
+# "renter ratio", "single-unit str", "vacancy ratio", "median rent increase", "median value increase",
+# "time to work < 30m", "time to work >= 60m", "no internet", "median income",
+# "median rent", "median house value", "spatial_effects_samples")
 
 `%ni%` <- Negate(`%in%`)
 df_nonpay %>%
@@ -39,8 +49,8 @@ df_nonpay %>%
 
 economic <- c("rent >= 50%", "social programs",
                 "unemployment", "median income")
-demographic <- c("median age", "black pop", "hispanic pop", "education >= graduate", 
-                "living alone", "with children", 'male householder', 'female householder')
+demographic <- c("median age", "black pop", "hispanic pop", "asian pop", "education >= graduate", 
+                "living alone", "with children", 'male hher w/ children', 'female hher w/ children')
 housing <- c("median rent", "renter ratio", "mortgage ratio",
                 "vacancy ratio", "median rent increase",
                 "median house value", "median value increase")
@@ -74,7 +84,8 @@ dim(df_nonpay)
 head(df_other)
 
 df <- rbind(df_nonpay, df_other)
-df$model <- c(rep("nonpayment", 25), rep("other", 25))
+dim(df)
+df$model <- c(rep("nonpayment", 24), rep("other", 24))
 df$category_f <- factor(df$category, levels = c("Economic", "Demographic", "Housing Market Dynamics", "Built Environment", "intercept", "spatial"))
 head(df)
 # Visualize results
@@ -125,7 +136,7 @@ df %>%
     labs(x="", y="") +
     theme_bw() +
     scale_color_manual(values=c(Zissou1[3], Zissou1[1])) +
-    scale_x_continuous(limits = c(-0.5, 0.5)) +
+    scale_x_continuous(limits = c(-0.4, 0.4)) +
     theme(plot.title = element_text(hjust = 0.5)) -> econ_plot
 
 # Demographic
@@ -142,11 +153,11 @@ df %>%
     labs(x="beta_hat", y="") +
     theme_bw() +
     scale_color_manual(values=c(Zissou1[3], Zissou1[1])) +
-    scale_x_continuous(limits = c(-0.5, 0.5)) +
+    scale_x_continuous(limits = c(-0.4, 0.4)) +
     theme(plot.title = element_text(hjust = 0.5)) -> demo_plot
 
 # Housing Market Dynamics (HMD)
-pos_hmd <- position_nudge(y=c(rep(0.2, 7), rep(-0.2, 7)))
+pos_hmd <- position_nudge(y=c(rep(0.2, 6), rep(-0.2, 6)))
 df %>%
     #filter(!str_detect(fixed, "time")) %>% # Remove time effects
     filter(fixed %ni% c("spatial_effects_samples", "intercept_samples")) %>%
@@ -159,7 +170,7 @@ df %>%
     labs(x="", y="") +
     theme_bw() +
     scale_color_manual(values=c(Zissou1[3], Zissou1[1])) +
-    scale_x_continuous(limits = c(-0.5, 0.5)) +
+    scale_x_continuous(limits = c(-0.4, 0.4)) +
     theme(plot.title = element_text(hjust = 0.5)) -> hmd_plot
 
 # Built Environment (BE)
@@ -176,7 +187,7 @@ df %>%
     labs(x="beta_hat", y="") +
     theme_bw() +
     scale_color_manual(values=c(Zissou1[3], Zissou1[1])) +
-    scale_x_continuous(limits = c(-0.5, 0.5)) +
+    scale_x_continuous(limits = c(-0.4, 0.4)) +
     theme(plot.title = element_text(hjust = 0.5)) -> be_plot
 
 library(ggpubr)
