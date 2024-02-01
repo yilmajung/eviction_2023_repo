@@ -126,19 +126,19 @@ stan_data <- list(N = nrow(df3),
                   tau = 10)
 
 # Fit the model
-fit <- stan(file = 'sglmm_orthog_eff_small.stan', data = stan_data, 
-            iter=15000, chains=4, cores=4, warmup=5000, thin=5,
+fit_other <- stan(file = 'sglmm_orthog_eff_small.stan', data = stan_data, 
+            iter=17000, chains=4, cores=4, warmup=5000, thin=3,
             control = list(adapt_delta = 0.95, max_treedepth = 15))
 
-summary(fit)
+summary(fit_other)
 getwd()
 
 # Save the fitted model
 fit@stanmodel@dso <- new('cxxdso')
-saveRDS(fit, file='data/results/fit_other_final4.rds')
+saveRDS(fit_other, file='data/results/fit_other_final5.rds')
 
 # Load the fitted model
-fit <- readRDS("data/results/fit_other_final4.rds")
+fit <- readRDS("data/results/fit_other_final5.rds")
 
 
 # Extract the results

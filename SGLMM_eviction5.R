@@ -131,8 +131,8 @@ stan_data <- list(N = nrow(df3),
 
 # Fit the model
 fit <- stan(file = 'sglmm_orthog_eff_small.stan', data = stan_data, 
-            iter=10000, chains=4, cores=4, warmup=4000, thin=5,
-            control = list(adapt_delta = 0.9, max_treedepth = 15))
+            iter=17000, chains=4, cores=4, warmup=5000, thin=3,
+            control = list(adapt_delta = 0.95, max_treedepth = 15))
 
 summary(fit)
 getwd()
