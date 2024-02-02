@@ -78,6 +78,8 @@ var_dict = {
     'B25010_003E':'hh_average_size_renter_occupied',
     'B25024_002E':'1unit_detached_structure',
     'B25024_003E':'1unit_attached_structure',
+    'B25024_008E':'units_in_structure_20_49',
+    'B25024_009E':'units_in_structure_50ormore',
     'B25035_001E':'median_year_built',
     'B25070_001E':'gross_rent_percent_hhincome_total',
     'B25070_002E':'gross_rent_percent_hhincome_lt10',
