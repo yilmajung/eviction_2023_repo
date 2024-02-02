@@ -34,7 +34,7 @@ covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'children_w
                 'children_w_male_hh_ratio', 'children_w_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hh_nonfamily_ratio', 'mortgage_status_ratio',
-                '1unit_structure_ratio', 'vacancy_rate', 
+                '1unit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
@@ -59,7 +59,7 @@ colnames(df2) <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'childre
                 'children_w_male_hh_ratio', 'children_w_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hh_nonfamily_ratio', 'mortgage_status_ratio',
-                'oneunit_structure_ratio', 'vacancy_rate', 
+                'oneunit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
@@ -79,7 +79,7 @@ covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'children_w
                 'children_w_male_hh_ratio', 'children_w_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hh_nonfamily_ratio', 'mortgage_status_ratio',
-                'oneunit_structure_ratio', 'vacancy_rate', 
+                'oneunit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
@@ -115,7 +115,7 @@ dim(XX_inv_tx)
 
 # Set up the data list for Stan (Y = eviction_rate)
 stan_data <- list(N = nrow(df3), 
-                  K = 23,
+                  K = 24,
                   A_N = dim(A_sparse)[1],
                   Y = df3$eviction_rate_renter,
                   X = X,
@@ -134,18 +134,18 @@ summary(fit_other)
 getwd()
 
 # Save the fitted model
-fit@stanmodel@dso <- new('cxxdso')
-saveRDS(fit_other, file='data/results/fit_other_final5.rds')
+fit_other@stanmodel@dso <- new('cxxdso')
+saveRDS(fit_other, file='data/results/fit_other_final6.rds')
 
 # Load the fitted model
-fit <- readRDS("data/results/fit_other_final5.rds")
+fit_other <- readRDS("data/results/fit_other_final6.rds")
 
 
 # Extract the results
-posterior_estimates <- rstan::extract(fit)
+posterior_estimates <- rstan::extract(fit_other)
 
-stan_trace(fit, pars=c("beta_orig"))
-stan_trace(fit, pars=c("beta"))
+stan_trace(fit_other, pars=c("beta_orig"))
+stan_trace(fit_other, pars=c("beta"))
 stan_trace(posterior_estimates$beta_orig[1:10, 1:10])
 dim(posterior_estimates$beta_orig)
 summary(posterior_estimates$beta_orig)
@@ -161,7 +161,7 @@ c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'children_w_married_coupl
                 'children_w_male_hh_ratio', 'children_w_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hh_nonfamily_ratio', 'mortgage_status_ratio',
-                'oneunit_structure_ratio', 'vacancy_rate', 
+                'oneunit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
@@ -181,15 +181,16 @@ medage_samples <- posterior_estimates$beta_orig[,11]
 nonfamily_samples <- posterior_estimates$beta_orig[,12]
 mort_ratio_samples <- posterior_estimates$beta_orig[,13]
 unit1_structure_samples <- posterior_estimates$beta_orig[,14]
-vacancy_rate_samples <- posterior_estimates$beta_orig[,15]
-medrent_change_samples <- posterior_estimates$beta_orig[,16]
-medvalue_change_samples <- posterior_estimates$beta_orig[,17]
-time_to_work_lt30_samples <- posterior_estimates$beta_orig[,18]
-time_to_work_mt60_samples <- posterior_estimates$beta_orig[,19]
-no_internet_access_samples <- posterior_estimates$beta_orig[,20]
-medinc_samples <- posterior_estimates$beta_orig[,21]
-medrent_samples <- posterior_estimates$beta_orig[,22]
-medvalue_samples <- posterior_estimates$beta_orig[,23]
+multiunit_structure_samples <- posterior_estimates$beta_orig[,15]
+vacancy_rate_samples <- posterior_estimates$beta_orig[,16]
+medrent_change_samples <- posterior_estimates$beta_orig[,17]
+medvalue_change_samples <- posterior_estimates$beta_orig[,18]
+time_to_work_lt30_samples <- posterior_estimates$beta_orig[,19]
+time_to_work_mt60_samples <- posterior_estimates$beta_orig[,20]
+no_internet_access_samples <- posterior_estimates$beta_orig[,21]
+medinc_samples <- posterior_estimates$beta_orig[,22]
+medrent_samples <- posterior_estimates$beta_orig[,23]
+medvalue_samples <- posterior_estimates$beta_orig[,24]
 spatial_effects_samples <- posterior_estimates$W_transformed
 
 dim(posterior_estimates$beta_orig)
@@ -202,14 +203,14 @@ df_samples <- data_frame(intercept_samples, rent_mt50_samples, social_program_sa
                          edu_grad_samples, children_w_married_couple_samples, children_w_male_samples, children_w_female_samples, 
                          unemp_samples, black_ratio_samples, hispanic_ratio_samples, asian_ratio_samples,
                          medage_samples, nonfamily_samples, mort_ratio_samples, 
-                         unit1_structure_samples, vacancy_rate_samples, medrent_change_samples,
+                         unit1_structure_samples, multiunit_structure_samples, vacancy_rate_samples, medrent_change_samples,
                          medvalue_change_samples,
                          time_to_work_lt30_samples, time_to_work_mt60_samples, no_internet_access_samples,
                          medinc_samples, medrent_samples, medvalue_samples, spatial_effects_samples)
 
 
 dim(df_samples)
-write.csv(df_samples, "data/results/df_samples_other_final_3.csv")
+write.csv(df_samples, "data/results/df_samples_other_final_6.csv")
 
 df_95ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.025, 0.975))))
 df_mean <- data_frame(sapply(df_samples, function(x) mean(x)))
@@ -223,7 +224,7 @@ df_90ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
 df_95ci <- cbind(df_95ci, df_90ci)
 
 # Save the results
-write.csv(df_95ci, "data/results/df_95ci_other_final_3.csv")
+write.csv(df_95ci, "data/results/df_95ci_other_final_6.csv")
 View(df_95ci)
 
 # Extract the spatial random effects

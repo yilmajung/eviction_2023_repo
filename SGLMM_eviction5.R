@@ -37,7 +37,7 @@ covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'children_w
                 'children_w_male_hh_ratio', 'children_w_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hh_nonfamily_ratio', 'mortgage_status_ratio',
-                '1unit_structure_ratio', 'vacancy_rate', 
+                '1unit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
@@ -63,7 +63,7 @@ colnames(df2) <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'childre
                 'children_w_male_hh_ratio', 'children_w_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hh_nonfamily_ratio', 'mortgage_status_ratio',
-                'oneunit_structure_ratio', 'vacancy_rate', 
+                'oneunit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
@@ -85,7 +85,7 @@ covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'children_w
                 'children_w_male_hh_ratio', 'children_w_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hh_nonfamily_ratio', 'mortgage_status_ratio',
-                'oneunit_structure_ratio', 'vacancy_rate', 
+                'oneunit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
@@ -119,7 +119,7 @@ P_perp[1:10, 1:10]
 dim(A_sparse)[1]
 # Set up the data list for Stan (Y = eviction_rate)
 stan_data <- list(N = nrow(df3), 
-                  K = 22,
+                  K = 24,
                   A_N = dim(A_sparse)[1],
                   Y = df3$eviction_rate_renter,
                   X = X,
@@ -130,19 +130,19 @@ stan_data <- list(N = nrow(df3),
                   tau = 10)
 
 # Fit the model
-fit <- stan(file = 'sglmm_orthog_eff_small.stan', data = stan_data, 
-            iter=17000, chains=4, cores=4, warmup=5000, thin=3,
-            control = list(adapt_delta = 0.95, max_treedepth = 15))
+fit_nonpayment <- stan(file = 'sglmm_orthog_eff_small.stan', data = stan_data, 
+            iter=113000, chains=4, cores=4, warmup=5000, thin=3,
+            control = list(adapt_delta = 0.9, max_treedepth = 15))
 
 summary(fit)
 getwd()
 
 # Save the fitted model
-fit@stanmodel@dso <- new('cxxdso')
-saveRDS(fit, file='data/results/fit_nonpayment_final3.rds')
+fit_nonpayment@stanmodel@dso <- new('cxxdso')
+saveRDS(fit_nonpayment, file='data/results/fit_nonpayment_final6.rds')
 
 # Load the fitted model
-fit_nonpayment <- readRDS("data/results/fit_nonpayment_final3.rds")
+fit_nonpayment <- readRDS("data/results/fit_nonpayment_final6.rds")
 
 # Extract the results
 posterior_estimates <- rstan::extract(fit_nonpayment)
@@ -162,13 +162,14 @@ summary(posterior_estimates$beta_orig)
 #   'hh_median_income', 'median_gross_rent',  'housing_median_value', 'hh_average_size_renter_occupied')
 
 c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'children_w_married_couple_ratio',
-                'children_w_male_hh_ratio', 'children_w_female_hh_ratio', 
+                'children_w_male_hh_ratio', 'children_w_female_hh_ratio',
                 'unemployment_rate', 'black_ratio', 'hispanic_ratio', 'asian_ratio',
                 'median_age', 'hh_nonfamily_ratio', 'mortgage_status_ratio',
-                'oneunit_structure_ratio', 'vacancy_rate', 
+                'oneunit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
                 'hh_median_income', 'median_gross_rent', 'housing_median_value')
+
 intercept_samples <- posterior_estimates$alpha
 rent_mt50_samples <- posterior_estimates$beta_orig[,1]
 social_program_samples <- posterior_estimates$beta_orig[,2]
@@ -184,70 +185,17 @@ medage_samples <- posterior_estimates$beta_orig[,11]
 nonfamily_samples <- posterior_estimates$beta_orig[,12]
 mort_ratio_samples <- posterior_estimates$beta_orig[,13]
 unit1_structure_samples <- posterior_estimates$beta_orig[,14]
-vacancy_rate_samples <- posterior_estimates$beta_orig[,15]
-medrent_change_samples <- posterior_estimates$beta_orig[,16]
-medvalue_change_samples <- posterior_estimates$beta_orig[,17]
-time_to_work_lt30_samples <- posterior_estimates$beta_orig[,18]
-time_to_work_mt60_samples <- posterior_estimates$beta_orig[,19]
-no_internet_access_samples <- posterior_estimates$beta_orig[,20]
-medinc_samples <- posterior_estimates$beta_orig[,21]
-medrent_samples <- posterior_estimates$beta_orig[,22]
-medvalue_samples <- posterior_estimates$beta_orig[,23]
+multiunit_structure_samples <- posterior_estimates$beta_orig[,15]
+vacancy_rate_samples <- posterior_estimates$beta_orig[,16]
+medrent_change_samples <- posterior_estimates$beta_orig[,17]
+medvalue_change_samples <- posterior_estimates$beta_orig[,18]
+time_to_work_lt30_samples <- posterior_estimates$beta_orig[,19]
+time_to_work_mt60_samples <- posterior_estimates$beta_orig[,20]
+no_internet_access_samples <- posterior_estimates$beta_orig[,21]
+medinc_samples <- posterior_estimates$beta_orig[,22]
+medrent_samples <- posterior_estimates$beta_orig[,23]
+medvalue_samples <- posterior_estimates$beta_orig[,24]
 spatial_effects_samples <- posterior_estimates$W_transformed
-
-
-# intercept_samples <- posterior_estimates$alpha
-# rent_mt50_samples <- posterior_estimates$beta_orig[,1]
-# social_program_samples <- posterior_estimates$beta_orig[,2]
-# hh_w_child_samples <- posterior_estimates$beta_orig[,3]
-# edu_grad_samples <- posterior_estimates$beta_orig[,4]
-# hh_w_child_male_samples <- posterior_estimates$beta_orig[,5]
-# hh_w_child_female_samples <- posterior_estimates$beta_orig[,6]
-# unemp_samples <- posterior_estimates$beta_orig[,7]
-# black_ratio_samples <- posterior_estimates$beta_orig[,8]
-# hispanic_ratio_samples <- posterior_estimates$beta_orig[,9]
-# medage_samples <- posterior_estimates$beta_orig[,10]
-# living_alone_samples <- posterior_estimates$beta_orig[,11]
-# mort_ratio_samples <- posterior_estimates$beta_orig[,12]
-# renter_occ_rate_samples <- posterior_estimates$beta_orig[,13]
-# unit1_structure_samples <- posterior_estimates$beta_orig[,14]
-# vacancy_rate_samples <- posterior_estimates$beta_orig[,15]
-# medrent_change_samples <- posterior_estimates$beta_orig[,16]
-# medvalue_change_samples <- posterior_estimates$beta_orig[,17]
-# time_to_work_lt30_samples <- posterior_estimates$beta_orig[,18]
-# time_to_work_mt60_samples <- posterior_estimates$beta_orig[,19]
-# no_internet_access_samples <- posterior_estimates$beta_orig[,20]
-# medinc_samples <- posterior_estimates$beta_orig[,21]
-# medrent_samples <- posterior_estimates$beta_orig[,22]
-# medvalue_samples <- posterior_estimates$beta_orig[,23]
-# spatial_effects_samples <- posterior_estimates$W_transformed
-
-# intercept_samples <- posterior_estimates$alpha
-# poverty_samples <- posterior_estimates$beta[,1]
-# rent_mt40_samples <- posterior_estimates$beta[,2]
-# social_program_samples <- posterior_estimates$beta[,3]
-# hh_w_child_samples <- posterior_estimates$beta[,4]
-# unemp_samples <- posterior_estimates$beta[,5]
-# black_ratio_samples <- posterior_estimates$beta[,6]
-# white_ratio_samples <- posterior_estimates$beta[,7]
-# asian_ratio_samples <- posterior_estimates$beta[,8]
-# hispanic_ratio_samples <- posterior_estimates$beta[,9]
-# edu_lt_hs_samples <- posterior_estimates$beta[,10]
-# medage_samples <- posterior_estimates$beta[,11]
-# nonfam_samples <- posterior_estimates$beta[,12]
-# renter_occ_rate_samples <- posterior_estimates$beta[,13]
-# mort_ratio_samples <- posterior_estimates$beta[,14]
-# unit1_structure_samples <- posterior_estimates$beta[,15]
-# vacancy_rate_samples <- posterior_estimates$beta[,16]
-# medrent_change_samples <- posterior_estimates$beta[,17]
-# time_to_work_lt30_samples <- posterior_estimates$beta[,18]
-# time_to_work_30to59_samples <- posterior_estimates$beta[,19]
-# time_to_work_mt60_samples <- posterior_estimates$beta[,20]
-# medinc_samples <- posterior_estimates$beta[,21]
-# medrent_samples <- posterior_estimates$beta[,22]
-# medvalue_samples <- posterior_estimates$beta[,23]
-# renter_hhsize_samples <- posterior_estimates$beta[,24]
-# spatial_effects_samples <- posterior_estimates$W_transformed
 
 dim(posterior_estimates$beta_orig)
 dim(posterior_estimates$beta)
@@ -259,7 +207,7 @@ df_samples <- data_frame(intercept_samples, rent_mt50_samples, social_program_sa
                          edu_grad_samples, children_w_married_couple_samples, children_w_male_samples, children_w_female_samples, 
                          unemp_samples, black_ratio_samples, hispanic_ratio_samples, asian_ratio_samples,
                          medage_samples, nonfamily_samples, mort_ratio_samples, 
-                         unit1_structure_samples, vacancy_rate_samples, medrent_change_samples,
+                         unit1_structure_samples, multiunit_structure_samples, vacancy_rate_samples, medrent_change_samples,
                          medvalue_change_samples,
                          time_to_work_lt30_samples, time_to_work_mt60_samples, no_internet_access_samples,
                          medinc_samples, medrent_samples, medvalue_samples, spatial_effects_samples)
