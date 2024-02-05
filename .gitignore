@@ -91,3 +91,13 @@ data/results/fit_other_final4.rds
 data/figures/fig_results_rev.png
 acs_api_query_temp.ipynb
 acs_api_query_temp.ipynb
+data/results/fit_nonpayment_final5.rds
+.gitignore
+.gitignore
+data/results/fit_other_final5.rds
+data/results/df_95ci_nonpayment_final_5.csv
+data/results/df_geom_nonpayment_final_5.csv
+data/results/df_95ci_other_final_5.csv
+data/figures/fig_spatial_effect_comp.png
+fig_real_rate.pdf
+fig_spatial_effect.pdf
