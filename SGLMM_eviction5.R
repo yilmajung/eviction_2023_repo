@@ -142,7 +142,7 @@ fit_nonpayment@stanmodel@dso <- new('cxxdso')
 saveRDS(fit_nonpayment, file='data/results/fit_nonpayment_final6.rds')
 
 # Load the fitted model
-fit_nonpayment <- readRDS("data/results/fit_nonpayment_final5.rds")
+fit_nonpayment <- readRDS("data/results/fit_nonpayment_final6.rds")
 
 # Extract the results
 posterior_estimates <- rstan::extract(fit_nonpayment)
