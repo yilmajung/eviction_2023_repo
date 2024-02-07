@@ -6,25 +6,29 @@ df_nonpay <- read_csv("data/results/df_95ci_nonpayment_final_6.csv")
 head(df_nonpay)
 colnames(df_nonpay) <- c("fixed", "lb_95", "ub_95", "beta_hat", "lb_90", "ub_90")
 
-df_other <- read_csv("data/results/df_95ci_other_final_5.csv")
+df_other <- read_csv("data/results/df_95ci_other_final_7_small.csv")
 colnames(df_other) <- c("fixed", "lb_95", "ub_95", "beta_hat", "lb_90", "ub_90")
 
 unique(df_nonpay$fixed)
 length(unique(df_other$fixed))
 
 df_nonpay$fixed <- c("intercept_samples", "rent >= 50%", "social programs",
-"education >= graduate", "children w/ married couple", "children w/ male hher", "children w/ female hher",
-"unemployment", 
-"black population", "hispanic population", "asian population", "median age", "non-family households", "mortgage ratio",
-"single-unit str", "vacancy ratio", "median rent increase", "median value increase",
+"education >= graduate", "children w/ married couple", "children w/ male hher", 
+"children w/ female hher", "unemployment", 
+"black population", "hispanic population", "asian population", 
+"median age", "non-family households", "mortgage ratio",
+"single-unit str", "multi-unit str", "vacancy ratio", "median rent increase", 
+"house value increase",
 "time to work < 30m", "time to work >= 60m", "no internet", "median income",
 "median rent", "median house value", "spatial_effects_samples")
 
 df_other$fixed <- c("intercept_samples", "rent >= 50%", "social programs",
-"education >= graduate", "children w/ married couple", "children w/ male hher", "children w/ female hher",
-"unemployment", 
-"black population", "hispanic population", "asian population", "median age", "non-family households", "mortgage ratio",
-"single-unit str", "vacancy ratio", "median rent increase", "median value increase",
+"education >= graduate", "children w/ married couple", "children w/ male hher", 
+"children w/ female hher", "unemployment", 
+"black population", "hispanic population", "asian population", 
+"median age", "non-family households", "mortgage ratio",
+"single-unit str", "multi-unit str", "vacancy ratio", "median rent increase", 
+"house value increase",
 "time to work < 30m", "time to work >= 60m", "no internet", "median income",
 "median rent", "median house value", "spatial_effects_samples")
 
@@ -56,8 +60,9 @@ demographic <- c("median age", "black population", "hispanic population", "asian
                 "non-family households")
 housing <- c("median rent", "renter ratio", "mortgage ratio",
                 "vacancy ratio", "median rent increase",
-                "median house value", "median value increase")
-environmental <- c("time to work < 30m", "time to work >= 60m", "no internet", "single-unit str")
+                "median house value", "house value increase")
+environmental <- c("time to work < 30m", "time to work >= 60m", "no internet", 
+                    "single-unit str", "multi-unit str")
 intercept <- c("intercept_samples")
 spatial <- c("spatial_effects_samples")
 
@@ -88,9 +93,10 @@ head(df_other)
 
 df <- rbind(df_nonpay, df_other)
 dim(df)
-df$model <- c(rep("nonpayment", 25), rep("other", 25))
+df$model <- c(rep("nonpayment", 26), rep("other", 26))
 df$category_f <- factor(df$category, levels = c("Economic Hardship", "Demographic Characteristics", "Housing Market Dynamics", "Built Environment", "intercept", "spatial"))
 head(df)
+View(df)
 # Visualize results
 df_nonpay %>%
     #filter(!str_detect(fixed, "time")) %>% # Remove time effects
@@ -143,7 +149,7 @@ df %>%
     theme(plot.title = element_text(hjust = 0.5)) -> econ_plot
 
 # Demographic
-pos_demo <- position_nudge(y=c(rep(0.2, 8), rep(-0.2, 8)))
+pos_demo <- position_nudge(y=c(rep(0.2, 9), rep(-0.2, 9)))
 df %>%
     #filter(!str_detect(fixed, "time")) %>% # Remove time effects
     filter(fixed %ni% c("spatial_effects_samples", "intercept_samples")) %>%
@@ -177,7 +183,7 @@ df %>%
     theme(plot.title = element_text(hjust = 0.5)) -> hmd_plot
 
 # Built Environment (BE)
-pos_be <- position_nudge(y=c(rep(0.2, 4), rep(-0.2, 4)))
+pos_be <- position_nudge(y=c(rep(0.2, 5), rep(-0.2, 5)))
 df %>%
     #filter(!str_detect(fixed, "time")) %>% # Remove time effects
     filter(fixed %ni% c("spatial_effects_samples", "intercept_samples")) %>%
@@ -200,6 +206,6 @@ fig_results <- ggarrange(econ_plot, hmd_plot, demo_plot, be_plot,
             # labels=c("Economic Factors", "Housing Market Dynamics", "Demographic Factors", "Built Environment"),
             # label.y = 1.1,
             common.legend = TRUE, legend="bottom")
-
+View(df)
 ?ggexport
-ggexport(fig_results, filename = "results_visualization2.pdf", width = 10, height = 7, units = "in", dpi = 300)
+ggexport(fig_results, filename = "results_visualization5.pdf", width = 10, height = 7, units = "in", dpi = 300)
