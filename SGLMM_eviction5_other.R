@@ -128,14 +128,14 @@ stan_data <- list(N = nrow(df3),
 # Fit the model
 fit_other <- stan(file = 'sglmm_orthog_eff_small.stan', data = stan_data, 
             iter=17000, chains=4, cores=4, warmup=5000, thin=3,
-            control = list(adapt_delta = 0.95, max_treedepth = 15))
+            control = list(adapt_delta = 0.9, max_treedepth = 15))
 
 summary(fit_other)
 getwd()
 
 # Save the fitted model
 fit_other@stanmodel@dso <- new('cxxdso')
-saveRDS(fit_other, file='data/results/fit_other_final6.rds')
+saveRDS(fit_other, file='data/results/fit_other_final7_short.rds')
 
 # Load the fitted model
 fit_other <- readRDS("data/results/fit_other_final6.rds")
@@ -210,7 +210,7 @@ df_samples <- data_frame(intercept_samples, rent_mt50_samples, social_program_sa
 
 
 dim(df_samples)
-write.csv(df_samples, "data/results/df_samples_other_final_6.csv")
+write.csv(df_samples, "data/results/df_samples_other_final_7_small.csv")
 
 df_95ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.025, 0.975))))
 df_mean <- data_frame(sapply(df_samples, function(x) mean(x)))
@@ -224,7 +224,7 @@ df_90ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
 df_95ci <- cbind(df_95ci, df_90ci)
 
 # Save the results
-write.csv(df_95ci, "data/results/df_95ci_other_final_6.csv")
+write.csv(df_95ci, "data/results/df_95ci_other_final_7_small.csv")
 View(df_95ci)
 
 # Extract the spatial random effects

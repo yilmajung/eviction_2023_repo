@@ -101,3 +101,8 @@ data/results/df_95ci_other_final_5.csv
 data/figures/fig_spatial_effect_comp.png
 fig_real_rate.pdf
 fig_spatial_effect.pdf
+results_visualization2.pdf
+data/results/df_95ci_other_final_7_small.csv
+data/results/df_samples_other_final_7_small.csv
+data/results/fit_nonpayment_final6.rds
+data/results/fit_other_final7_short.rds
