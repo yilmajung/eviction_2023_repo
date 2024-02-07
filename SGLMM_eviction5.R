@@ -134,9 +134,10 @@ fit_nonpayment <- stan(file = 'sglmm_orthog_eff_small.stan', data = stan_data,
             iter=113000, chains=4, cores=4, warmup=5000, thin=3,
             control = list(adapt_delta = 0.9, max_treedepth = 15))
 
-summary(fit)
-getwd()
+summary(fit_nonpayment, probs=c(0.5))$summary
 
+getwd()
+check_hmc_diagnostics(fit_nonpayment)
 # Save the fitted model
 fit_nonpayment@stanmodel@dso <- new('cxxdso')
 saveRDS(fit_nonpayment, file='data/results/fit_nonpayment_final6.rds')
@@ -222,7 +223,7 @@ View(df_95ci)
 # 90% CI
 df_90ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
 df_95ci <- cbind(df_95ci, df_90ci)
-write.csv(df_95ci, "data/results/df_95ci_nonpayment_final_3.csv")
+write.csv(df_95ci, "data/results/df_95ci_nonpayment_final_6.csv")
 View(df_95ci)
 ################################
 

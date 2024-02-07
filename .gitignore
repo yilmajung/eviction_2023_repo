@@ -106,3 +106,10 @@ data/results/df_95ci_other_final_7_small.csv
 data/results/df_samples_other_final_7_small.csv
 data/results/fit_nonpayment_final6.rds
 data/results/fit_other_final7_short.rds
+data/results/df_95ci_nonpayment_final_6.csv
+results_visualization3.pdf
+.gitignore
+results_visualization4.pdf
+results_visualization5.pdf
+data/figures/fig1_fe_results.png
+data/figures/fig2_se_results.png
