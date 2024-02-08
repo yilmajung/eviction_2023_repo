@@ -249,7 +249,7 @@ df$geometry_x
 df <- st_as_sf(df, wkt = "geometry_x", crs=4326)
 st_crs(df) <- 4326
 
-write.csv(df, 'data/results/df_geom_nonpayment_final_3.csv')
+write.csv(df, 'data/results/df_geom_nonpayment_final_6.csv')
 
 
 
@@ -431,10 +431,9 @@ df %>%
                             ifelse(spatial_effect <= speff_criteria[2], 2, 
                                    ifelse(spatial_effect <= speff_criteria[3], 3, 
                                           ifelse(spatial_effect <= speff_criteria[4], 4, 5))))) %>%
-  mutate(speff_cat = factor(speff_cat, labels=c('Low', 'Moderate', 'High', 'Very High', 'Extreme'))) %>% 
   ggplot() +
          geom_sf(aes(fill=speff_cat, geometry=geometry_x), color='white') + 
-         scale_color_manual("Blues") + 
+         scale_fill_viridis_c(option="E") +
          labs(title="Spatial Random Effects", fill="Effect") + 
          theme_minimal() -> plot_spatial
 
@@ -449,8 +448,8 @@ df %>%
          labs(title="Eviction Filing Rate", fill="Effect") + 
          theme_minimal() -> plot_real
 
-ggexport(plot_spatial, filename = "fig_spatial_effect.pdf", width = 8, height = 6, units = "in", dpi = 300)
-ggexport(plot_real, filename = "fig_real_rate.pdf", width = 8, height = 6, units = "in", dpi = 300)
+ggexport(plot_spatial, filename = "fig_spatial_effect2.pdf", width = 8, height = 6, units = "in", dpi = 300)
+ggexport(plot_real, filename = "fig_real_rate2.pdf", width = 8, height = 6, units = "in", dpi = 300)
 ####################
 
 plot_spatial <- ggplot(df) + 
@@ -469,7 +468,6 @@ plot_real <- ggplot(df) +
 criteria <- quantile(df$spatial_effect, probs=c(0.025, 0.975), na.rm=TRUE)
 Zissou1 <- c('#2ca1db', '#112047', '#f44323', '#dfb78e', '#ccd5dd')
 
-
 df %>%
 mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%
 ggplot() + 
@@ -479,9 +477,9 @@ ggplot() +
          theme_minimal()
 
 # Load Dallas top filers data
-df_top_nonpayment <- read_csv('data/df_nonpay_100_filer.csv')
+df_top_nonpayment <- read_csv('data/df_nonpay_100_geoid.csv')
 head(df_top_nonpayment)
-
+View(df_top_nonpayment)
 fig_nonpayment_se <- df %>%
 mutate(bus_prac = ifelse(spatial_effect >= criteria[2], 1, ifelse(spatial_effect <= criteria[1], -1, 0))) %>%
 mutate(bus_prac = ifelse(is.na(bus_prac), 0, bus_prac)) %>%
@@ -494,3 +492,57 @@ ggplot() +
          theme_bw()
 
 ggexport(fig_nonpayment_se, filename = "fig_nonpayment_se.pdf", width = 8, height = 6, units = "in", dpi = 300)
+
+
+head(df)
+dim(df)
+# Figure 3
+#criteria <- quantile(df$spatial_effect, probs=c(.68), na.rm=TRUE)
+mean_se <- mean(df$spatial_effect, na.rm=TRUE) 
+std_se <- sd(df$spatial_effect, na.rm=TRUE)
+criteria <- mean_se + std_se
+
+# Create a new temporary dataframe including geoid info for top 100 filers
+df_temp <- df %>%
+mutate(bus_prac = ifelse(spatial_effect >= criteria, 1, 0)) %>%
+filter(bus_prac == 1)
+
+df_top_nonpayment <- df_top_nonpayment %>%
+mutate(high_se = ifelse(GEOID %in% df_temp$GEOID, 1, 0))
+
+
+df <- df %>%
+mutate(bus_prac = ifelse(spatial_effect >= criteria, 1, 0)) %>%
+mutate(bus_prac = ifelse(is.na(bus_prac), 0, bus_prac))
+table(df$bus_prac)
+
+# fig_nonpayment_se <- df %>%
+#        mutate(bus_prac2 = ifelse(spatial_effect >= criteria, 1, 0)) %>%
+#        mutate(bus_prac2 = ifelse(is.na(bus_prac2), 0, bus_prac2)) %>%
+#        ggplot() + 
+#          geom_sf(aes(fill=factor(bus_prac2, label=c('Moderate', 'High')), geometry=geometry_x), color='darkgrey') + 
+#          scale_fill_manual(values=c(Zissou1[5], "#F0DE68")) +
+#          geom_point(data=df_top_nonpayment, aes(x=X, y=Y, size=case_number), color="#00CC99", alpha=.5) +
+#          scale_size(range=c(.3,10)) +
+#          labs(fill="Spatial Effects", x="", y="", size="Top 100 Landlords\nFiling Counts\n(2017-2021)") + 
+#          theme_bw()
+
+# ggexport(fig_nonpayment_se, filename = "fig_nonpayment_se_1.pdf", width = 8, height = 6, units = "in", dpi = 300)
+
+
+
+fig_nonpayment_se <- df %>%
+       mutate(bus_prac2 = ifelse(spatial_effect >= criteria, 1, 0)) %>%
+       mutate(bus_prac2 = ifelse(is.na(bus_prac2), 0, bus_prac2)) %>%
+       ggplot() + 
+         geom_sf(aes(fill=factor(bus_prac2, label=c('Moderate', 'High')), geometry=geometry_x), color='darkgrey') + 
+         scale_fill_manual(values=c(Zissou1[5], "#F0DE68")) +
+         geom_point(data=df_top_nonpayment, aes(x=X, y=Y, color=factor(high_se)), alpha=.8, size=1.2) +
+         scale_color_manual(values=c(Zissou1[1], Zissou1[3])) +
+         labs(fill="Spatial Effects", x="", y="") + 
+         theme_minimal() +
+         theme(legend.position="bottom", panel.grid.major=element_blank(), panel.grid.minor=element_blank())
+
+ggexport(fig_nonpayment_se, filename = "fig_nonpayment_se_2.pdf", width = 6, height = 6, units = "in", dpi = 300)
+
+View(df)

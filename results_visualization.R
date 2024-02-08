@@ -12,7 +12,7 @@ colnames(df_other) <- c("fixed", "lb_95", "ub_95", "beta_hat", "lb_90", "ub_90")
 unique(df_nonpay$fixed)
 length(unique(df_other$fixed))
 
-df_nonpay$fixed <- c("intercept_samples", "rent >= 50%", "social programs",
+df_nonpay$fixed <- c("intercept_samples", "rent >= 50%", "public assistance",
 "education >= graduate", "children w/ married couple", "children w/ male hher", 
 "children w/ female hher", "unemployment", 
 "black population", "hispanic population", "asian population", 
@@ -22,7 +22,7 @@ df_nonpay$fixed <- c("intercept_samples", "rent >= 50%", "social programs",
 "time to work < 30m", "time to work >= 60m", "no internet", "median income",
 "median rent", "median house value", "spatial_effects_samples")
 
-df_other$fixed <- c("intercept_samples", "rent >= 50%", "social programs",
+df_other$fixed <- c("intercept_samples", "rent >= 50%", "public assistance",
 "education >= graduate", "children w/ married couple", "children w/ male hher", 
 "children w/ female hher", "unemployment", 
 "black population", "hispanic population", "asian population", 
@@ -53,7 +53,7 @@ df_nonpay %>%
     theme(plot.title = element_text(hjust = 0.5))
 
 
-economic <- c("rent >= 50%", "social programs",
+economic <- c("rent >= 50%", "public assistance",
                 "unemployment", "median income")
 demographic <- c("median age", "black population", "hispanic population", "asian population", "education >= graduate",
                 "children w/ married couple", "children w/ male hher", "children w/ female hher", 
@@ -131,11 +131,12 @@ df %>%
 
 Zissou1 <- c("#2ca1db", "#112047", "#f44323", "#dfb78e", "#ccd5dd")
 
+
 # Economic
 pos_econ <- position_nudge(y=c(rep(0.2, 4), rep(-0.2, 4)))
 df %>%
     #filter(!str_detect(fixed, "time")) %>% # Remove time effects
-    filter(fixed %ni% c("spatial_effects_samples", "intercept_samples")) %>%
+    filter(fixed %ni% c("spatial_effects_samples", "intercept_samples", "multi-unit str")) %>%
     filter(category == "Economic Hardship") %>%
     ggplot(aes(x=beta_hat, y=reorder(fixed, beta_hat), color=model)) +
     geom_errorbarh(aes(xmin=lb_95, xmax=ub_95), height=0.15, position=pos_econ) +
@@ -183,10 +184,10 @@ df %>%
     theme(plot.title = element_text(hjust = 0.5)) -> hmd_plot
 
 # Built Environment (BE)
-pos_be <- position_nudge(y=c(rep(0.2, 5), rep(-0.2, 5)))
+pos_be <- position_nudge(y=c(rep(0.2, 4), rep(-0.2, 4)))
 df %>%
     #filter(!str_detect(fixed, "time")) %>% # Remove time effects
-    filter(fixed %ni% c("spatial_effects_samples", "intercept_samples")) %>%
+    filter(fixed %ni% c("spatial_effects_samples", "intercept_samples", "multi-unit str")) %>%
     filter(category == "Built Environment") %>%
     ggplot(aes(x=beta_hat, y=reorder(fixed, beta_hat), color=model)) +
     geom_errorbarh(aes(xmin=lb_95, xmax=ub_95), height=0.15, position=pos_be) +
@@ -208,4 +209,4 @@ fig_results <- ggarrange(econ_plot, hmd_plot, demo_plot, be_plot,
             common.legend = TRUE, legend="bottom")
 View(df)
 ?ggexport
-ggexport(fig_results, filename = "results_visualization5.pdf", width = 10, height = 7, units = "in", dpi = 300)
+ggexport(fig_results, filename = "results_visualization6.pdf", width = 10, height = 7, units = "in", dpi = 300)

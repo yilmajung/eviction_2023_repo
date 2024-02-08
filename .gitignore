@@ -113,3 +113,13 @@ results_visualization4.pdf
 results_visualization5.pdf
 data/figures/fig1_fe_results.png
 data/figures/fig2_se_results.png
+fig_nonpayment_se_1.pdf
+fig_nonpayment_se_2.pdf
+.gitignore
+fig_real_rate2.pdf
+fig_spatial_effect2.pdf
+fig3_top100bldg.png
+results_visualization6.pdf
+data/df_nonpay_100_geoid.csv
+data/figures/fig1_fe_results_.png
+data/results/df_geom_nonpayment_final_6.csv
