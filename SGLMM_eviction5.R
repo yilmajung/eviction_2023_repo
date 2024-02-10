@@ -245,7 +245,6 @@ dim(df)
 # Convert df_np to SF object
 ?st_as_sf
 class(df$geometry_x)
-df$geometry_x
 df <- st_as_sf(df, wkt = "geometry_x", crs=4326)
 st_crs(df) <- 4326
 
@@ -329,98 +328,6 @@ mcmc_hist()
 mcmc_intervals(df_fit, pars=c('alpha'))
 mcmc_intervals(df_fit, pars=c('beta_orig[1]','beta_orig[2]'), prob=0.95)
 packageVersion("bayesplot")
-
-
-#########################
-# Temp (final 5 version)
-fit_nonpayment <- readRDS("data/results/fit_nonpayment_final5.rds")
-
-# Extract the results
-posterior_estimates <- rstan::extract(fit_nonpayment)
-
-stan_trace(fit_nonpayment, pars=c("beta_orig"))
-stan_trace(fit_nonpayment, pars=c("beta"))
-stan_trace(posterior_estimates$beta_orig[1:10, 1:10])
-dim(posterior_estimates$beta_orig)
-summary(posterior_estimates$beta_orig)
-
-
-intercept_samples <- posterior_estimates$alpha
-rent_mt50_samples <- posterior_estimates$beta_orig[,1]
-social_program_samples <- posterior_estimates$beta_orig[,2]
-edu_grad_samples <- posterior_estimates$beta_orig[,3]
-children_w_married_couple_samples <- posterior_estimates$beta_orig[,4]
-children_w_male_samples <- posterior_estimates$beta_orig[,5]
-children_w_female_samples <- posterior_estimates$beta_orig[,6]
-unemp_samples <- posterior_estimates$beta_orig[,7]
-black_ratio_samples <- posterior_estimates$beta_orig[,8]
-hispanic_ratio_samples <- posterior_estimates$beta_orig[,9]
-asian_ratio_samples <- posterior_estimates$beta_orig[,10]
-medage_samples <- posterior_estimates$beta_orig[,11]
-nonfamily_samples <- posterior_estimates$beta_orig[,12]
-mort_ratio_samples <- posterior_estimates$beta_orig[,13]
-unit1_structure_samples <- posterior_estimates$beta_orig[,14]
-vacancy_rate_samples <- posterior_estimates$beta_orig[,15]
-medrent_change_samples <- posterior_estimates$beta_orig[,16]
-medvalue_change_samples <- posterior_estimates$beta_orig[,17]
-time_to_work_lt30_samples <- posterior_estimates$beta_orig[,18]
-time_to_work_mt60_samples <- posterior_estimates$beta_orig[,19]
-no_internet_access_samples <- posterior_estimates$beta_orig[,20]
-medinc_samples <- posterior_estimates$beta_orig[,21]
-medrent_samples <- posterior_estimates$beta_orig[,22]
-medvalue_samples <- posterior_estimates$beta_orig[,23]
-spatial_effects_samples <- posterior_estimates$W_transformed
-
-# Create a data frame for 4000 samples
-df_samples <- data_frame(intercept_samples, rent_mt50_samples, social_program_samples,
-                         edu_grad_samples, children_w_married_couple_samples, children_w_male_samples, children_w_female_samples, 
-                         unemp_samples, black_ratio_samples, hispanic_ratio_samples, asian_ratio_samples,
-                         medage_samples, nonfamily_samples, mort_ratio_samples, 
-                         unit1_structure_samples, vacancy_rate_samples, medrent_change_samples,
-                         medvalue_change_samples,
-                         time_to_work_lt30_samples, time_to_work_mt60_samples, no_internet_access_samples,
-                         medinc_samples, medrent_samples, medvalue_samples, spatial_effects_samples)
-
-df_95ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.025, 0.975))))
-df_mean <- data_frame(sapply(df_samples, function(x) mean(x)))
-dim(df_95ci)
-dim(df_mean)
-df_95ci <- cbind(df_95ci, df_mean)
-View(df_95ci)
-
-
-# 90% CI
-df_90ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
-df_95ci <- cbind(df_95ci, df_90ci)
-write.csv(df_95ci, "data/results/df_95ci_nonpayment_final_5.csv")
-View(df_95ci)
-
-################################
-
-# Extract the spatial random effects
-spatial_effects <- posterior_estimates$W_transformed
-dim(spatial_effects)
-avg_spatial_effects <- apply(spatial_effects, 2, mean)
-
-# Load removed CBGs
-df_removed <- read_csv('data/eviction_count_bg_2021_for_removed_cbg.csv')
-head(df_removed)
-
-# Add spatial effects to df_np
-df$spatial_effect <- avg_spatial_effects
-
-# Merge df_np and df_removed
-df <- merge(df, df_removed, by=c('GEOID', 'geometry_x'), all.y=TRUE)
-dim(df)
-# Convert df_np to SF object
-?st_as_sf
-class(df$geometry_x)
-df$geometry_x
-df <- st_as_sf(df, wkt = "geometry_x", crs=4326)
-st_crs(df) <- 4326
-
-write.csv(df, 'data/results/df_geom_nonpayment_final_5.csv')
-library(ggpubr)
 
 # Compare eviction filing rate and spatial effects
 speff_criteria <- quantile(df$spatial_effect, probs=c(0.2, 0.4, 0.6, 0.8), na.rm=TRUE)
