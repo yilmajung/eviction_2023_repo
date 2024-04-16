@@ -123,3 +123,9 @@ results_visualization6.pdf
 data/df_nonpay_100_geoid.csv
 data/figures/fig1_fe_results_.png
 data/results/df_geom_nonpayment_final_6.csv
+data/acs_data_5y_2019_revised.csv
+data/acs_evic_data_np_wo_zero_pop_prepandemic.csv
+data/acs_evic_data_wo_zero_pop_prepandemic.csv
+.gitignore
+.gitignore
+data/bbox_dallas.csv
