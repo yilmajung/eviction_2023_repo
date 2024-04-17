@@ -129,3 +129,8 @@ data/acs_evic_data_wo_zero_pop_prepandemic.csv
 .gitignore
 .gitignore
 data/bbox_dallas.csv
+.Rproj.user
+data/results/df_95ci_nonpayment_prepandemic.csv
+.gitignore
+data/results/fit_nonpayment_prepandemic.rds
+data/results/df_geom_nonpayment_prepandemic.csv
