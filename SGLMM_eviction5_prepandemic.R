@@ -131,7 +131,7 @@ stan_data <- list(N = nrow(df3),
 
 # Fit the model
 fit_nonpayment <- stan(file = 'sglmm_orthog_eff_small.stan', data = stan_data, 
-            iter=113000, chains=4, cores=4, warmup=5000, thin=3,
+            iter=18000, chains=4, cores=4, warmup=3000, thin=3,
             control = list(adapt_delta = 0.9, max_treedepth = 15))
 
 summary(fit_nonpayment, probs=c(0.5))$summary
@@ -140,7 +140,7 @@ getwd()
 check_hmc_diagnostics(fit_nonpayment)
 # Save the fitted model
 fit_nonpayment@stanmodel@dso <- new('cxxdso')
-saveRDS(fit_nonpayment, file='data/results/fit_nonpayment_final6.rds')
+saveRDS(fit_nonpayment, file='data/results/fit_nonpayment_prepandemic.rds')
 
 # Load the fitted model
 fit_nonpayment <- readRDS("data/results/fit_nonpayment_final6.rds")
@@ -223,7 +223,7 @@ View(df_95ci)
 # 90% CI
 df_90ci <- t(sapply(df_samples, function(x) quantile(x, probs = c(0.05, 0.95))))
 df_95ci <- cbind(df_95ci, df_90ci)
-write.csv(df_95ci, "data/results/df_95ci_nonpayment_final_6.csv")
+write.csv(df_95ci, "data/results/df_95ci_nonpayment_prepandemic.csv")
 View(df_95ci)
 ################################
 
@@ -232,9 +232,10 @@ spatial_effects <- posterior_estimates$W_transformed
 dim(spatial_effects)
 avg_spatial_effects <- apply(spatial_effects, 2, mean)
 
-# Load removed CBGs
-df_removed <- read_csv('data/eviction_count_bg_2021_for_removed_cbg.csv')
-head(df_removed)
+# I've already revised this part in slgmm_analysis_prepandemic.ipynb
+# # Load removed CBGs
+# df_removed <- read_csv('data/eviction_count_bg_2021_for_removed_cbg.csv')
+# head(df_removed)
 
 # Add spatial effects to df_np
 df$spatial_effect <- avg_spatial_effects
@@ -248,7 +249,7 @@ class(df$geometry_x)
 df <- st_as_sf(df, wkt = "geometry_x", crs=4326)
 st_crs(df) <- 4326
 
-write.csv(df, 'data/results/df_geom_nonpayment_final_6.csv')
+write.csv(df, 'data/results/df_geom_nonpayment_prepandemic.csv')
 
 
 
