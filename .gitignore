@@ -134,3 +134,7 @@ data/results/df_95ci_nonpayment_prepandemic.csv
 .gitignore
 data/results/fit_nonpayment_prepandemic.rds
 data/results/df_geom_nonpayment_prepandemic.csv
+data/df_amenity_2021_lab_01bbox_2_2.csv
+data/df_amenity_2021_lab_01bbox_3.csv
+data/df_amenity_2021_lab_01bbox_4.csv
+data/df_three_amenities_2021.csv
