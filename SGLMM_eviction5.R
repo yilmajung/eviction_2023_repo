@@ -31,7 +31,7 @@ neighbors <- which(A==1, arr.ind=TRUE)
 A_sparse <- matrix(neighbors, ncol=2)
 A_sparse <- A_sparse[A_sparse[,1] < A_sparse[,2], ]
 dim(A_sparse)
-
+head(df)
 # Standardize predictors
 covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'children_w_married_couple_ratio',
                 'children_w_male_hh_ratio', 'children_w_female_hh_ratio',
@@ -40,7 +40,8 @@ covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'children_w
                 '1unit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
-                'hh_median_income', 'median_gross_rent', 'housing_median_value')
+                'hh_median_income', 'median_gross_rent', 'housing_median_value',
+                'fire_police_per_capita', 'food_per_capita', 'college_univ_per_capita', 'school_per_capita')
 
 # covariates <- c('gross_rent_mt50', 'hh_social_programs', 'hh_w_child_ratio', 'edu_grad',
 #                 'hh_w_child_male_hh_ratio', 'hh_w_child_female_hh_ratio',
@@ -66,7 +67,8 @@ colnames(df2) <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'childre
                 'oneunit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
-                'hh_median_income', 'median_gross_rent', 'housing_median_value')
+                'hh_median_income', 'median_gross_rent', 'housing_median_value',
+                'fire_police_per_capita', 'food_per_capita', 'college_univ_per_capita', 'school_per_capita')
 
 
 summary(df2)
@@ -88,7 +90,8 @@ covariates <- c('gross_rent_mt50', 'hh_social_programs', 'edu_grad', 'children_w
                 'oneunit_structure_ratio', 'multiunit_structure_ratio', 'vacancy_rate', 
                 'median_gross_rent_change', 'housing_median_value_change',
                 'time_to_work_lt30', 'time_to_work_mt60', 'no_internet_access_ratio', 
-                'hh_median_income', 'median_gross_rent', 'housing_median_value')
+                'hh_median_income', 'median_gross_rent', 'housing_median_value',
+                'fire_police_per_capita', 'food_per_capita', 'college_univ_per_capita', 'school_per_capita')
 
 
 df3[covariates] <- scale(df3[covariates])
@@ -119,7 +122,7 @@ P_perp[1:10, 1:10]
 dim(A_sparse)[1]
 # Set up the data list for Stan (Y = eviction_rate)
 stan_data <- list(N = nrow(df3), 
-                  K = 24,
+                  K = 28,
                   A_N = dim(A_sparse)[1],
                   Y = df3$eviction_rate_renter,
                   X = X,
